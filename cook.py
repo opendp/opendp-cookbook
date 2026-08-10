@@ -14,7 +14,7 @@ def write_index(stems):
     index_md = (
         (ROOT / 'recipes/index.md').read_text()
         + "\n"
-        + "\n".join(f"- {stem}" for stem in stems)
+        + "\n".join(f"- {stem}: [html]({stem}.html) [ipynb]({stem}.ipynb)" for stem in stems)
     )
     body_inner_html = mistune.html(index_md)
     DOCS.mkdir(exist_ok=True)
