@@ -17,7 +17,6 @@ def write_index(stems):
         + "\n".join(f"- {stem}: [html]({stem}.html) [ipynb]({stem}.ipynb)" for stem in stems)
     )
     body_inner_html = mistune.html(index_md)
-    DOCS.mkdir(exist_ok=True)
     (DOCS / 'index.html').write_text(
         f"""<!DOCTYPE html>
 <html>
@@ -27,6 +26,7 @@ def write_index(stems):
     )
 
 if __name__ == '__main__':
+    DOCS.mkdir(exist_ok=True)
     stems = []
     for py_path in (ROOT / 'recipes').glob('*.py'):
         py_src = py_path.read_text()
