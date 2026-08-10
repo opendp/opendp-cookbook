@@ -1,6 +1,7 @@
 on:
-    push: # TODO: remove push once working.
-    pull_request:
+  push:
+    branches:
+      - main
 
 
 jobs:
