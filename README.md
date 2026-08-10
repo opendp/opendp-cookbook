@@ -1,2 +1,6 @@
 # opendp-cookbook
-OpenDP example code
+
+Examples of OpenDP usage. PRs welcome!
+
+<!-- TODO: Add a CNAME. -->
+[Start cooking!](https://opendp.github.io/opendp-cookbook/)
