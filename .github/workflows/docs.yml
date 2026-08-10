@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          # Make sure we get all refs
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
