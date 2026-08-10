@@ -1,5 +1,7 @@
 on:
-  pull_request:
+    push: # TODO: remove push once working.
+    pull_request:
+
 
 jobs:
 
