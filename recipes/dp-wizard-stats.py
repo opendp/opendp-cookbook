@@ -1,6 +1,9 @@
-# {"tagmap":{
+# {"tag_map":{
 #   "Brief Report": [],
-#   "Full Tutorial": ["tutorial"],
+#   "Full Tutorial": ["tutorial"]
+# },
+# "css_map": {
+#   "tutorial": "background: lightgrey;"
 # }}
 
 # # DP Statistics for `grade` grouped by `class_year_str`
