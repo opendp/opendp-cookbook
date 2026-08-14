@@ -53,7 +53,8 @@ if __name__ == '__main__':
 
         stems.append(stem)
     write_index(stems)
-    rmtree(DOCS / 'assets')
+    if (assets := (DOCS / 'assets')).exists():
+        rmtree(assets)
     (ROOT / 'assets').copy_into(DOCS)
     print("done!")
 
