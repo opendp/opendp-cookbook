@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from shutil import rmtree
 from json import dumps
 from pathlib import Path
 import mistune
@@ -12,11 +13,19 @@ from dp_wizard_templates.converters import (
 ROOT = Path(__file__).parent
 DOCS = ROOT / 'docs'
 
+def get_md_line(stem):
+    github_url = f"https://github.com/opendp/opendp-cookbook/blob/main/recipes/{stem}.py"
+    return (
+        f"- [{stem}]({stem}.html) "
+        f"([as notebook]({stem}.ipynb), "
+        f"[as python on github]({github_url}))"
+    )
+
 def write_index(stems):
     index_md = (
         (ROOT / 'recipes/index.md').read_text()
         + "\n"
-        + "\n".join(f"- {stem}: [html]({stem}.html) [ipynb]({stem}.ipynb)" for stem in stems)
+        + "\n".join(get_md_line(stem) for stem in stems)
     )
     body_inner_html = mistune.html(index_md)
     (DOCS / 'index.html').write_text(
@@ -44,6 +53,7 @@ if __name__ == '__main__':
 
         stems.append(stem)
     write_index(stems)
+    rmtree(DOCS / 'assets')
     (ROOT / 'assets').copy_into(DOCS)
     print("done!")
 
