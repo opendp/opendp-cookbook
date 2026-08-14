@@ -23,6 +23,7 @@ def write_index(stems):
         f"""<!DOCTYPE html>
 <html>
     <head><title>OpenDP Cookbook</title></head>
+    <img src="assets/opendp-logo.png"></img>
     <body>{body_inner_html}</body>
 </html>"""
     )
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     DOCS.mkdir(exist_ok=True)
     stems = []
     for py_path in (ROOT / 'recipes').glob('*.py'):
+        print(f"{py_path.name}...")
         py_src = py_path.read_text()
         stem = py_path.stem
 
@@ -42,4 +44,6 @@ if __name__ == '__main__':
 
         stems.append(stem)
     write_index(stems)
+    (ROOT / 'assets').copy_into(DOCS)
+    print("done!")
 
