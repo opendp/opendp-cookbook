@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from json import dumps
 from pathlib import Path
 import mistune
