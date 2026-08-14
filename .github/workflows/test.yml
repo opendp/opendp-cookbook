@@ -1,0 +1,28 @@
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+
+
+jobs:
+
+  docs:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Make sure we get all refs
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cook!
+        run: python cook.py
