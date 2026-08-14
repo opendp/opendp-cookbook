@@ -32,8 +32,8 @@ def write_index(stems):
         f"""<!DOCTYPE html>
 <html>
     <head><title>OpenDP Cookbook</title></head>
-    <img src="assets/opendp-logo.png"></img>
-    <body>{body_inner_html}</body>
+    <img src="assets/opendp-logo.png" style="width: 200px"></img>
+    <body style="font-family: sans-serif;">{body_inner_html}</body>
 </html>"""
     )
 
