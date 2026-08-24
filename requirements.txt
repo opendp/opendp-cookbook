@@ -4,3 +4,4 @@ mistune==3.3.4
 matplotlib==3.11.0
 sphinx==9.1.0
 pydata-sphinx-theme==0.20.0
+nbsphinx==0.9.8

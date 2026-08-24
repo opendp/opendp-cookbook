@@ -12,6 +12,7 @@ for an invitation to the OpenDP Slack.
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
+   
+   basics/index
 
