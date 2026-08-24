@@ -27,3 +27,4 @@ html_theme = "pydata_sphinx_theme"
 html_static_path = ['_static']
 html_logo = "_static/images/opendp-logo.png"
 html_favicon = "favicon.ico"
+html_css_files = ["css/custom.css"]
