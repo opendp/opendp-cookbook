@@ -15,7 +15,6 @@ release = '0.15.1' # Match the library version.
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = []
-html_favicon = "favicon.ico"
 templates_path = ['_templates']
 exclude_patterns = []
 
@@ -26,3 +25,5 @@ exclude_patterns = []
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ['_static']
+html_logo = "_static/images/opendp-logo.png"
+html_favicon = "favicon.ico"
