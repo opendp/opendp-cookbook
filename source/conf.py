@@ -9,13 +9,13 @@
 project = 'OpenDP Cookbook'
 copyright = '2026, OpenDP Project'
 author = 'OpenDP Project'
-release = '0.1.0'
+release = '0.15.1' # Match the library version.
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = []
-
+html_favicon = "favicon.ico"
 templates_path = ['_templates']
 exclude_patterns = []
 
