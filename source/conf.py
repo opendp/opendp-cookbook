@@ -28,3 +28,7 @@ html_static_path = ['_static']
 html_logo = "_static/images/opendp-logo.png"
 html_favicon = "favicon.ico"
 html_css_files = ["css/custom.css"]
+html_theme_options = {
+    "github_url": "https://github.com/opendp/opendp-cookbook",
+    "announcement": "https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html",
+}
