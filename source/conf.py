@@ -17,6 +17,7 @@ release = '0.15.1' # Match the library version.
 extensions = []
 templates_path = ['_templates']
 exclude_patterns = []
+nitpicky = True
 
 
 
