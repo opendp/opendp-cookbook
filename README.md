@@ -18,8 +18,8 @@ For local development:
 $ python3.14 -m venv .venv
 $ . .venv/bin/activate
 $ pip install -r requirements.txt
-$ ./cook.py
+$ build html
 ```
 
-The cookbook then be read at `docs/index.html`.
+The cookbook then be read at `build/html/index.html`.
 When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cookbook/) is automatically updated.

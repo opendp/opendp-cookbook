@@ -20,11 +20,9 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - run: pip install -r requirements.txt
 
-      - name: Cook!
-        run: python cook.py
+      - run: build html
           
       - name: Push docs to gh-pages branch
         run: |
