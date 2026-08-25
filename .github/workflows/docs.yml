@@ -31,7 +31,7 @@ jobs:
           
       - name: Push docs to gh-pages branch
         run: |
-            cp -r build/html /tmp
+            cp -r build /tmp
             
             git fetch
             git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
@@ -43,7 +43,7 @@ jobs:
 
             # Keep .git so this orphaned checkout can still be committed and pushed.
             find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-            cp -r /tmp/html .
+            cp -r /tmp/build/html/* .
             echo "Skip Jekyll and deploy underscore directories verbatim." > .nojekyll
             # TODO: echo cookbook.opendp.org > CNAME
 
