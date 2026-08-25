@@ -6,3 +6,4 @@ pydata-sphinx-theme==0.20.0
 nbsphinx==0.9.8
 pandas==3.0.5  # TODO: Remove dependency. https://github.com/opendp/opendp-cookbook/issues/24
 seaborn==0.13.2
+myst-parser==5.1.0
