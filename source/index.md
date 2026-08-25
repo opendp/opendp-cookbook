@@ -2,7 +2,7 @@
 
 The OpenDP Cookbook is a collection of recipes for the OpenDP Library.
 We check that the recipes run with the latest version of the library,
-but they might not be the best solution for your particular problem.
+but they may not reflect the latest and best idioms for using OpenDP.
 
 In addition to the cookbook,
 we suggestion consulting https://docs.opendp.org/,
