@@ -1,6 +1,8 @@
 opendp[polars]==0.15.1
-dp_wizard_templates==0.9.0 # More than we need, but brings in dependencies.
+dp_wizard_templates==0.9.0 # More than we need, but brings in dependencies. https://github.com/opendp/opendp-cookbook/issues/25
 matplotlib==3.11.0
 sphinx==9.1.0
 pydata-sphinx-theme==0.20.0
 nbsphinx==0.9.8
+pandas==3.0.5  # TODO: Remove dependency. https://github.com/opendp/opendp-cookbook/issues/24
+seaborn==0.13.2

@@ -16,5 +16,18 @@ $ pip install -r requirements.txt
 $ make html
 ```
 
-The cookbook then be read at `build/html/index.html`.
+The cookbook then be seen at `build/html/index.html`.
 When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cookbook/) is automatically updated.
+
+## Tips
+
+To migrate `.ipynb` files, use nbconvert:
+
+```
+$ jupyter nbconvert example.ipynb --to script --output-dir source
+```
+
+You'll need to add `# +` and `# -` in a few places to help with formatting,
+and then add the new script to the table of contents.
+
+
