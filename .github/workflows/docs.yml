@@ -20,15 +20,18 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: 2.19.2
 
-      - name: Cook!
-        run: python cook.py
+      - run: pip install -r requirements.txt
+
+      - run: make html
           
       - name: Push docs to gh-pages branch
         run: |
-            cp -r docs /tmp
+            cp -r build/html /tmp
             
             git fetch
             git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
@@ -41,7 +44,7 @@ jobs:
             # Keep .git so this orphaned checkout can still be committed and pushed.
             find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
             # TODO: echo cookbook.opendp.org > CNAME
-            cp -r /tmp/docs .
+            cp -r /tmp/html .
 
             git add --all --force
             git commit --allow-empty-message --message "$(git log $(git rev-parse origin/main) --oneline --format=%B -n1 | head -n1)"

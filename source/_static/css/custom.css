@@ -1,0 +1,4 @@
+/* invert the opendp logo in dark mode */
+.logo__image.only-dark {
+    filter: invert();
+}
