@@ -43,3 +43,10 @@ nbsphinx_custom_formats = {
     # TODO: Use dp-wizard-templates for more control.
     '.py': ['jupytext.reads', {'fmt': 'py:light'}],
 }
+
+# -- Options for Myst-Parser --
+# https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+
+myst_enable_extensions = [
+    "gfm_autolink"
+]
