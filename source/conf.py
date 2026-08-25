@@ -16,7 +16,7 @@ release = '0.15.1' # Match the library version.
 # -- General configuration --
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['nbsphinx']
+extensions = ['nbsphinx', 'myst_parser']
 templates_path = ['_templates']
 exclude_patterns = ['conf.py'] # Other .py files WILL BE converted to notebooks and executed. 
 nitpicky = True
@@ -43,3 +43,10 @@ nbsphinx_custom_formats = {
     # TODO: Use dp-wizard-templates for more control.
     '.py': ['jupytext.reads', {'fmt': 'py:light'}],
 }
+
+# -- Options for Myst-Parser --
+# https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
+
+myst_enable_extensions = [
+    "gfm_autolink"
+]
