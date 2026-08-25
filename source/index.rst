@@ -15,5 +15,5 @@ for an invitation to the OpenDP Slack.
    :maxdepth: 1
    
    basics/index
-   theory/accuracy-pitfalls
+   theory/index
 
