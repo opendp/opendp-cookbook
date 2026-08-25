@@ -8,3 +8,4 @@ Theory
    differencing-attack
    membership-attack
    reconstruction-attack
+   quantiles-exponential-mechanism
