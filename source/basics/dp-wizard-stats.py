@@ -1,11 +1,3 @@
-# {"tag_map":{
-#   "Brief Report": [],
-#   "Full Tutorial": ["tutorial"]
-# },
-# "css_map": {
-#   "tutorial": "background: lightgrey;"
-# }}
-
 # # DP Statistics for `grade` grouped by `class_year_str`
 #
 # This demonstrates how to calculate DP Statistics for `grade` grouped by `class_year_str` using OpenDP (https://docs.opendp.org).
