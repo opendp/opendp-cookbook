@@ -18,7 +18,7 @@ For local development:
 $ python3.14 -m venv .venv
 $ . .venv/bin/activate
 $ pip install -r requirements.txt
-$ build html
+$ make html
 ```
 
 The cookbook then be read at `build/html/index.html`.
