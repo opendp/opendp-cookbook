@@ -20,6 +20,11 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: 2.19.2
+
       - run: pip install -r requirements.txt
 
       - run: make html
