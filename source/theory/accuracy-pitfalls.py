@@ -18,9 +18,9 @@
 # be the case that $\phi(P)$ (the value of $\phi$ on the underlying population) is within some range of the realized
 # $\phi(D)$.
 #
-# In OpenDP (and differentially private data analysis generally), 
-# there is an extra layer of uncertainty due to the noise added to $\phi(D)$ to produce $\phi_{dp}(D)$. 
-# OpenDP's accuracy utilities described below deal only with the uncertainty of $\phi_{dp}(D)$ relative to $\phi(D)$ 
+# In OpenDP (and differentially private data analysis generally),
+# there is an extra layer of uncertainty due to the noise added to $\phi(D)$ to produce $\phi_{dp}(D)$.
+# OpenDP's accuracy utilities described below deal only with the uncertainty of $\phi_{dp}(D)$ relative to $\phi(D)$
 # and not the uncertainty of $\phi(D)$ relative to $\phi(P)$, but there is ongoing work to provide methods that incorporate both.
 #
 # #### What is $D$?
@@ -33,8 +33,8 @@
 #
 # #### Synopsis
 #
-# Say an analyst releases $\phi_{dp}(D)$ and gets an accuracy guarantee of $a$ at accuracy-level $\alpha$ using the accuracy utilities described below. 
-# $D$ is a dataset of unknown size drawn from population $P$ and will be resized to $\tilde{D}$. 
+# Say an analyst releases $\phi_{dp}(D)$ and gets an accuracy guarantee of $a$ at accuracy-level $\alpha$ using the accuracy utilities described below.
+# $D$ is a dataset of unknown size drawn from population $P$ and will be resized to $\tilde{D}$.
 # This suggests that over infinite runs of this procedure,
 #
 # - $\phi_{dp}(D) \in [\phi(\tilde{D}) - a, \phi(\tilde{D}) + a]$ with probability $1 - \alpha$

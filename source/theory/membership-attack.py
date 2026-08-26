@@ -1,9 +1,9 @@
 # # Membership Attack
 # An adversary can leverage a membership inference attack that takes advantage of query answers on a sequestered dataset to infer if a particular individual exists in the sequestered dataset.
-# There are situations in which knowing if an individual exists within a sequestered dataset poses risk to the individual. 
-# 
+# There are situations in which knowing if an individual exists within a sequestered dataset poses risk to the individual.
+#
 # The membership attacks in this notebook come from [DSSUV'15, Robust Traceability from Trace Amounts.](https://salil.seas.harvard.edu/publications/robust-traceability-trace-amounts)
-# 
+#
 # This notebook makes use of the Public Use Microdata Sample (PUMS), obtained from the Census Bureau’s American Community Survey (ACS).
 # Attacks like the one demonstrated in this notebook motivate the use of statistical disclosure limitation techniques like differential privacy.
 
@@ -19,10 +19,10 @@ np.random.seed(123)
 #
 # An attacker wants to determine if Alice, an individual from the population, is a member of a sequestered dataset.
 # Consider the sequestered dataset to be a sample from a broader population.
-# 
+#
 # It is assumed that the attacker is given the answers to a mean query mechanism applied to the sequestered dataset.
-# The attacker collects the public information for Alice, as well as the public information for other individuals from the population (the reference sample). 
-# 
+# The attacker collects the public information for Alice, as well as the public information for other individuals from the population (the reference sample).
+#
 # The gist of the attack is that if Alice is more similar to the query answers than the reference sample is to the query answers, then Alice is likely a member of the sequestered dataset.
 #
 # The first attack comes from figure 1, where the reference sample is assumed to be of size 1.
@@ -119,11 +119,11 @@ def execute_exact_query(data):
 sequestered_data, rest = draw(population, 10)
 
 
-# At this point the attacker takes over. 
-# The attacker builds a projection that maps data into a boolean space in which the tests can be conducted. 
-# He then collects the information he needs- public information for Alice, query answers on the sequestered data, and reference samples from the population. 
+# At this point the attacker takes over.
+# The attacker builds a projection that maps data into a boolean space in which the tests can be conducted.
+# He then collects the information he needs- public information for Alice, query answers on the sequestered data, and reference samples from the population.
 # Keep in mind that the attacker does not need access to the sequestered data to retrieve the public information for Alice and the reference samples.
-# 
+#
 # If the membership attack evaluates to True, then the attacker can be 95% confident that Alice is a member of the sequestered dataset.
 # If the membership attack evaluates to False, it is inconclusive if Alice is a member of the sequestered dataset.
 
@@ -273,7 +273,7 @@ plot_fpr_tpr(num_predicates, fp_results, tp_results)
 # -
 
 # The test doesn't identify members outside of the sequestered dataset (false positive rate of zero), and becomes more powerful as the number of predicates increases (true positive rate increasing).
-# 
+#
 # These results look very significant, but keep in mind that the size of the sequestered dataset `sample_size` is only 5. Such a small sample size makes the query answers more distinctive, thus making it much easier to distinguish Alice.
 #
 # In this second simulation, we increase the sample size to a relatively large 30% of the population. In order to maintain power on the membership attack, we use the hypothesis test from figure 2 instead, collect a larger reference sample, and increase the number of predicates.
@@ -299,14 +299,14 @@ plot_fpr_tpr(num_predicates, fp_results, tp_results)
 
 
 # The attack is more than effectively demonstrated at 4000 predicates, which gives an ~0% FPR and >80% TPR. It is trivial to increase the number of predicates or size of the reference sample to further increase the power of the attack.
-# 
-# 
+#
+#
 # ### Differential Privacy
-# 
-# We now adjust our query interface to return answers protected by differential privacy. 
+#
+# We now adjust our query interface to return answers protected by differential privacy.
 # `execute_dp_query` releases an estimate of the mean for each predicate.
 # The implementation splits the budget evenly over all input columns.
-# By linear composition, the total privacy expenditure of the joint release of all means works out to be `epsilon`. 
+# By linear composition, the total privacy expenditure of the joint release of all means works out to be `epsilon`.
 # As the number of attributes increases, the number of queries increases, which commensurately increases the noise scale.
 
 

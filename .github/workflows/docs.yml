@@ -30,11 +30,11 @@ jobs:
       - run: uv sync --dev
 
       - run: uv run make html
-          
+
       - name: Push docs to gh-pages branch
         run: |
             cp -r build /tmp
-            
+
             git fetch
             git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
             git config --global user.name "$GITHUB_ACTOR"
@@ -53,4 +53,3 @@ jobs:
             git commit --allow-empty-message --message "$(git log $(git rev-parse origin/main) --oneline --format=%B -n1 | head -n1)"
             git remote set-url origin "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
             git push --force origin gh-pages
-

@@ -41,4 +41,3 @@ $ uv add your-new-dependency
 
 The base dependencies should suffice to run the notebooks,
 while the dev dependencies are needed for the build.
-

@@ -18,7 +18,7 @@ release = '0.15.1' # Match the library version.
 
 extensions = ['nbsphinx', 'myst_parser']
 templates_path = ['_templates']
-exclude_patterns = ['conf.py'] # Other .py files WILL BE converted to notebooks and executed. 
+exclude_patterns = ['conf.py'] # Other .py files WILL BE converted to notebooks and executed.
 nitpicky = True
 
 
