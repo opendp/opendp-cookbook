@@ -14,15 +14,17 @@ jobs:
           # Make sure we get all refs
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
-          python-version: '3.14'
-      
+          # Install a specific version of uv.
+          version: "0.11.24"
+
       - name: Setup Pandoc
         uses: pandoc/actions/setup@v1
         with:
           version: 2.19.2
 
-      - run: pip install -r requirements.txt
+      - run: uv sync --dev
 
-      - run: make html
+      - run: uv run make html

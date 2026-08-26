@@ -1,5 +1,4 @@
-Basics
-======
+# Basics
 
 ```{toctree}
 :maxdepth: 1
