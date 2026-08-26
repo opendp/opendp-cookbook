@@ -1,5 +1,4 @@
-Theory
-======
+# Theory
 
 ```{toctree}
 :maxdepth: 1
