@@ -7,18 +7,20 @@
 # -- Project information --
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'OpenDP Cookbook'
-copyright = '2026, OpenDP Project'
-author = 'OpenDP Project'
-release = '0.15.1' # Match the library version.
+project = "OpenDP Cookbook"
+copyright = "2026, OpenDP Project"
+author = "OpenDP Project"
+release = "0.15.1"  # Match the library version.
 
 
 # -- General configuration --
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['nbsphinx', 'myst_parser']
-templates_path = ['_templates']
-exclude_patterns = ['conf.py'] # Other .py files WILL BE converted to notebooks and executed. 
+extensions = ["nbsphinx", "myst_parser"]
+templates_path = ["_templates"]
+exclude_patterns = [
+    "conf.py"
+]  # Other .py files WILL BE converted to notebooks and executed.
 nitpicky = True
 
 
@@ -26,7 +28,7 @@ nitpicky = True
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "pydata_sphinx_theme"
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_logo = "_static/images/opendp-logo.png"
 html_favicon = "favicon.ico"
 html_css_files = ["css/custom.css"]
@@ -41,12 +43,10 @@ html_theme_options = {
 
 nbsphinx_custom_formats = {
     # TODO: Use dp-wizard-templates for more control.
-    '.py': ['jupytext.reads', {'fmt': 'py:light'}],
+    ".py": ["jupytext.reads", {"fmt": "py:light"}],
 }
 
 # -- Options for Myst-Parser --
 # https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 
-myst_enable_extensions = [
-    "gfm_autolink"
-]
+myst_enable_extensions = ["gfm_autolink"]

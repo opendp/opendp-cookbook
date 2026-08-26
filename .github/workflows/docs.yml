@@ -16,25 +16,25 @@ jobs:
           # Make sure we get all refs
           fetch-depth: 0
 
+      - name: Setup Pandoc
+        uses: pandoc/actions/setup@v1
+        with:
+          version: 2.19.2
+
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           # Install a specific version of uv.
           version: "0.11.24"
 
-      - name: Setup Pandoc
-        uses: pandoc/actions/setup@v1
-        with:
-          version: 2.19.2
-
       - run: uv sync --dev
 
       - run: uv run make html
-          
+
       - name: Push docs to gh-pages branch
         run: |
             cp -r build /tmp
-            
+
             git fetch
             git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
             git config --global user.name "$GITHUB_ACTOR"
@@ -53,4 +53,3 @@ jobs:
             git commit --allow-empty-message --message "$(git log $(git rev-parse origin/main) --oneline --format=%B -n1 | head -n1)"
             git remote set-url origin "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY"
             git push --force origin gh-pages
-
