@@ -16,12 +16,8 @@ For local development:
 ```
 $ pip install uv
 $ uv sync --dev
-<<<<<<< Updated upstream
-$ uv run make html
-=======
 $ uv run pre-commit install
 $ uv run cook.py
->>>>>>> Stashed changes
 ```
 
 The cookbook then be seen at `build/html/index.html`.
