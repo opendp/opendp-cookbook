@@ -29,7 +29,7 @@ jobs:
 
       - run: uv sync --dev
 
-      - run: uv run make html
+      - run: uv run cook.py
 
       - name: Push docs to gh-pages branch
         run: |
