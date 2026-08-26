@@ -14,10 +14,9 @@ so comments will be parsed as markdown on conversion to notebook.
 For local development:
 
 ```
-$ python3.14 -m venv .venv
-$ . .venv/bin/activate
-$ pip install -r requirements.txt
-$ make html
+$ pip install uv
+$ uv sync --dev
+$ uv run make html
 ```
 
 The cookbook then be seen at `build/html/index.html`.
@@ -25,7 +24,7 @@ When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cook
 
 ## Tips
 
-To migrate `.ipynb` files, use nbconvert:
+**To migrate `.ipynb` files**, use nbconvert:
 
 ```
 $ jupyter nbconvert example.ipynb --to script --output-dir source
@@ -34,4 +33,12 @@ $ jupyter nbconvert example.ipynb --to script --output-dir source
 You'll need to add `# +` and `# -` in a few places to help with formatting,
 and then add the new script to the table of contents.
 
+**To add dependencies**, use uv:
+
+```
+$ uv add your-new-dependency
+```
+
+The base dependencies should suffice to run the notebooks,
+while the dev dependencies are needed for the build.
 
