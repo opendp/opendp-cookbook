@@ -27,7 +27,7 @@
 #
 # OpenDP allows for analysis of data with an unknown number of rows by resizing the data to ensure consistency with an
 # estimated size
-# (see the [unknown dataset size notebook](../api/user-guide/transformations/preprocess-resize.ipynb)
+# (see the [unknown dataset size notebook](https://docs.opendp.org/en/stable/api/user-guide/transformations/preprocess-resize.html)
 # for more details). Accuracy guarantees are always relative to the preprocessed data $\tilde{D}$ and operations such as
 # imputation and clipping are not factored into the accuracy.
 #
