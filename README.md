@@ -1,5 +1,9 @@
 # opendp-cookbook
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/license/MIT)
+
+[![docs build](https://github.com/opendp/opendp-cookbook/actions/workflows/docs.yml/badge.svg)](https://github.com/opendp/opendp-cookbook/actions/workflows/docs.yml?query=branch%3Amain)
+
 The OpenDP Cookbook is a place for the community to show how they are using OpenDP, and for newcomers to pick up ideas.
 If you have a recipe to add, please make a PR!
 
