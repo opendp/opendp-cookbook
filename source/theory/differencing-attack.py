@@ -20,7 +20,7 @@ incomes = np.genfromtxt(data_path, delimiter=",", names=var_names)[:]["income"].
 # In our case, it happens to be `0`.
 
 target_income = incomes[0]
-target_income
+print(target_income)
 
 
 # One way the attacker could deduce the income of the target individual is by acquiring the following information:
@@ -41,7 +41,7 @@ def reconstruct_income(n_individuals, mean, mean_non_target):
 
 
 recovered_income = reconstruct_income(n_individuals, mean, mean_non_target)
-recovered_income
+print(recovered_income)
 # -
 
 # These queries seem more benign than directly requesting the target's income.
@@ -108,7 +108,7 @@ dp_target_income = reconstruct_income(
     mean_non_target=dp_non_target_income / (n_individuals - 1),
 )
 # ...then the recovered income will be wildly inaccurate
-dp_target_income
+print(dp_target_income)
 # -
 
 
@@ -134,7 +134,7 @@ query = (
     .select(pl.col("income").cast(int).dp.sum((0, 70_000)))
 )
 dp_target_income = query.release().collect().item()
-dp_target_income
+print(dp_target_income)
 
 
 # Even though this query was explicitly crafted to single out the target,
@@ -160,7 +160,7 @@ data = pl.scan_csv(
 # get estimates of overall means
 dp_target_incomes = [m_target_income(data).collect().item() for _ in range(1_000)]
 ax = sns.histplot(dp_target_incomes, edgecolor="black", linewidth=1)
-ax.set(xlabel="Estimated Target Incomes");
+ax.set(xlabel="Estimated Target Incomes")
 # -
 
 # Notice how estimates of the estimates of the target's income vary wildly,

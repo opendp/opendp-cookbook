@@ -8,9 +8,10 @@
 # Attacks like the one demonstrated in this notebook motivate the use of statistical disclosure limitation techniques like differential privacy.
 
 # +
+import time
+
 import numpy as np
 import pandas as pd
-import time
 
 np.random.seed(123)
 # -
@@ -110,6 +111,8 @@ def draw(data: pd.DataFrame, sample_size: int):
 def execute_exact_query(data):
     """Computes the mean of each attribute."""
     return data.mean(axis=0)
+
+
 # -
 
 # To set up this problem, we'll first create a sequestered dataset, sampled from the population.
@@ -250,6 +253,8 @@ def plot_fpr_tpr(num_predicates, fp_results, tp_results):
     plt.ylim(bottom=0.0, top=1.0)
     plt.title("True Positive Rate as Number of Predicates Increases")
     plt.show()
+
+
 # -
 
 # In this attack we use the membership attack from figure 1, and vary the predicate space to up to 1000 predicates.
@@ -311,15 +316,16 @@ plot_fpr_tpr(num_predicates, fp_results, tp_results)
 
 
 # +
+from functools import cache
+
 import opendp.prelude as dp
-from functools import lru_cache
 
 dp.enable_features("floating-point", "contrib")
 
 epsilon = 1.0
 
 
-@lru_cache(maxsize=None)
+@cache
 def find_meas(size, num_queries):
     epsilon_per = epsilon / num_queries
     input_domain = dp.vector_domain(
@@ -340,6 +346,8 @@ def execute_dp_query(data):
     exact_aggregates = data.mean(axis=0)
     laplace = find_meas(*data.shape)
     return np.array(laplace(exact_aggregates))
+
+
 # -
 
 

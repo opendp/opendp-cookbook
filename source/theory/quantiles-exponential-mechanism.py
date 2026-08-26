@@ -63,7 +63,7 @@ t_median_scores = dp.t.make_quantile_score_candidates(
 
 # plot the scores
 scores = t_median_scores(data)
-plt.scatter(candidates, scores);
+plt.scatter(candidates, scores)
 # -
 
 # Since the data was sampled with a mean of 50, candidates nearer to 50 get better scores.
@@ -93,7 +93,7 @@ m_select_score = dp.m.make_noisy_max(
 
 # pass the discrete scores to the measurement
 noisy_index = m_select_score(scores)
-noisy_index
+print(noisy_index)
 
 m_select_score.map(d_in=1)
 # -
@@ -112,7 +112,7 @@ m_select_score = dp.m.make_noisy_max(
 
 # pass the discrete scores to the measurement
 noisy_index = m_select_score(scores)
-noisy_index
+print(noisy_index)
 # -
 
 

@@ -24,6 +24,7 @@
 import matplotlib.pyplot as plt
 import opendp.prelude as dp
 import polars as pl
+
 # The OpenDP team is working to vet the core algorithms.
 # Until that is complete we need to opt-in to use these features.
 dp.enable_features("contrib")
@@ -32,6 +33,7 @@ dp.enable_features("contrib")
 # + [markdown] tags=["tutorial"]
 # Then define some utility functions to handle dataframes and plot results:
 # -
+
 
 # + tags=["tutorial"]
 def round_2(number) -> float:
@@ -70,6 +72,8 @@ def make_cut_points(
     # Duplicate values would cause an error in Polars.
     # Use a set to return unique values.
     return sorted({round_2(lower_bound + i * bin_width) for i in range(bin_count + 1)})
+
+
 # These functions are used both in the application
 # and in generated notebooks.
 from polars import DataFrame
@@ -125,7 +129,6 @@ def plot_bars(df: DataFrame, title: str, error: float = 0):  # pragma: no cover
     Given a Dataframe, make a bar plot of the data in the last column,
     with labels from the prior columns.
     """
-    import matplotlib.pyplot as plt
 
     plt.rcParams["figure.figsize"] = (12, 4)
 
@@ -138,6 +141,8 @@ def plot_bars(df: DataFrame, title: str, error: float = 0):  # pragma: no cover
     axes.set_xticks(bins, bins, rotation=45)
     axes.set_ylim(bottom=0)
     axes.set_title(title)
+
+
 # -
 
 # + [markdown] tags=["tutorial"]
@@ -166,9 +171,9 @@ grade_cut_points = make_cut_points(
 
 # Use these cut points to add a new binned column to the table:
 grade_bin_expr = (
-    pl.col('grade')
+    pl.col("grade")
     .cut(grade_cut_points)  # Use "left_closed=True" to switch endpoint inclusion.
-    .alias('grade_bin')  # Give the new column a name.
+    .alias("grade_bin")  # Give the new column a name.
     .cast(pl.String)
 )
 
@@ -202,9 +207,11 @@ privacy_loss = dp.loss_of(
     delta=0,  # or 1 / max(1e7, 1000),
 )
 
-from pathlib import Path
 import csv
 import random
+from pathlib import Path
+
+
 def _clip(n: float, lower_bound: float, upper_bound: float) -> float:
     """
     >>> _clip(-5, 0, 10)
@@ -215,6 +222,8 @@ def _clip(n: float, lower_bound: float, upper_bound: float) -> float:
     10
     """
     return max(min(n, upper_bound), lower_bound)
+
+
 def make_demo_csv(path: Path, contributions: int) -> None:
     """
     >>> import tempfile
@@ -262,34 +271,52 @@ def make_demo_csv(path: Path, contributions: int) -> None:
                     }
                 )
 
-make_demo_csv(Path('/tmp/demo.csv'), 10)
+
+make_demo_csv(Path("/tmp/demo.csv"), 10)
 
 # See the OpenDP Library docs for more on Context:
 # https://docs.opendp.org/en/v0.14.2/api/user-guide/context/index.html#context
 stats_context = dp.Context.compositor(
-    data=pl.scan_csv('/tmp/demo.csv', encoding="utf8-lossy", ignore_errors=True).with_columns(
-        grade_bin_expr
-    ),
+    data=pl.scan_csv(
+        "/tmp/demo.csv", encoding="utf8-lossy", ignore_errors=True
+    ).with_columns(grade_bin_expr),
     privacy_unit=privacy_unit,
     privacy_loss=privacy_loss,
-    split_by_weights=[ # With only one query, the entire budget is allocated to that query:
-1, # grade
-],
-    margins=[# "max_partition_length" should be a loose upper bound,
-# for example, the size of the total population being sampled.
-# https://docs.opendp.org/en/v0.14.2/api/python/opendp.extras.polars.html#opendp.extras.polars.Margin.max_partition_length
-#
-# In production, "max_groups" should be set by considering
-# the number of possible values for each grouping column,
-# and taking their product.
-dp.polars.Margin(
-    by=list({'class_year_str': ['first year', 'sophomore', 'junior', 'senior']}.keys()),
-    max_length=1000,
-    max_groups=100,
-), dp.polars.Margin(
-    by=(['grade_bin'] + list({'class_year_str': ['first year', 'sophomore', 'junior', 'senior']}.keys())),
-    invariant="keys",  # Consider the bin values to be public information.
-)
+    split_by_weights=[  # With only one query, the entire budget is allocated to that query:
+        1,  # grade
+    ],
+    margins=[  # "max_partition_length" should be a loose upper bound,
+        # for example, the size of the total population being sampled.
+        # https://docs.opendp.org/en/v0.14.2/api/python/opendp.extras.polars.html#opendp.extras.polars.Margin.max_partition_length
+        #
+        # In production, "max_groups" should be set by considering
+        # the number of possible values for each grouping column,
+        # and taking their product.
+        dp.polars.Margin(
+            by=list(
+                {
+                    "class_year_str": ["first year", "sophomore", "junior", "senior"]
+                }.keys()
+            ),
+            max_length=1000,
+            max_groups=100,
+        ),
+        dp.polars.Margin(
+            by=(
+                ["grade_bin"]
+                + list(
+                    {
+                        "class_year_str": [
+                            "first year",
+                            "sophomore",
+                            "junior",
+                            "senior",
+                        ]
+                    }.keys()
+                )
+            ),
+            invariant="keys",  # Consider the bin values to be public information.
+        ),
     ],
 )
 # -
@@ -316,16 +343,20 @@ dp.polars.Margin(
 # -
 
 
-confidence = 0.95 # 95% confidence interval
+confidence = 0.95  # 95% confidence interval
 
 # ### Query for `grade`:
 
-groups = ['grade_bin'] + ['class_year_str']
+groups = ["grade_bin"] + ["class_year_str"]
 grade_query = (
     stats_context.query()
     .group_by(groups)
     .agg(pl.len().dp.noise().alias("count"))
-    .with_keys(pl.LazyFrame({'class_year_str': ['first year', 'sophomore', 'junior', 'senior']}))
+    .with_keys(
+        pl.LazyFrame(
+            {"class_year_str": ["first year", "sophomore", "junior", "senior"]}
+        )
+    )
 )
 
 # + [markdown] tags=["tutorial"]
@@ -348,12 +379,9 @@ grade_stats = grade_query.release().collect()
 grade_stats
 
 # 95% confidence interval
-title = (
-    f"DP counts for 'grade', "
-    f"assuming {contributions} contributions per individual"
-)
+title = f"DP counts for 'grade', assuming {contributions} contributions per individual"
 
-group_names = ['class_year_str']
+group_names = ["class_year_str"]
 if group_names:
     title += f" (grouped by {'/'.join(group_names)})"
 plot_bars(grade_stats, title=title, error=grade_accuracy)

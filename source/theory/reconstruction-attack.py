@@ -7,7 +7,7 @@
 #
 # We will be attempting to determine if each individual in the PUMS sample is a US citizen.s
 
-#+
+# +
 import numpy as np
 import pandas as pd
 
@@ -42,6 +42,7 @@ target = "uscitizen"
 # This function first creates a mask matrix of shape `(n, len(predicates))` by evaluating the predicates on the data.
 # All `len(predicates)` subset sums are computed simultaneously via a matrix product between the target column and mask.
 
+
 def execute_subsetsums_exact(predicates):
     """Count the number of citizens that satisfy each predicate.
     Resembles a public query interface on a sequestered dataset.
@@ -70,6 +71,7 @@ execute_subsetsums_exact(
 # then what we need to do is find the `x` that minimizes `|Ax - b|^2`.
 # The target column is equivalent to the least squares solution (assuming the public variables uniquely identify each individual).
 
+
 def reconstruction_attack(data_pub, predicates, answers):
     """Reconstructs a target column based on the `answers` to queries about `data`.
 
@@ -84,6 +86,7 @@ def reconstruction_attack(data_pub, predicates, answers):
 # We don't want to bother writing a large number of random predicates,
 # so we'll make use of a hashing scheme to generate random predicates.
 
+
 # +
 def make_random_predicate():
     """Returns a (pseudo)random predicate function by hashing public identifiers."""
@@ -92,6 +95,7 @@ def make_random_predicate():
     # this predicate maps data into a 1-d ndarray of booleans
     #   (where `@` is the dot product and `%` modulus)
     return lambda data: ((data[pub].values @ desc) % prime % 2).astype(bool)
+
 
 # Example usage
 random_predicate = make_random_predicate()
@@ -147,6 +151,8 @@ def execute_subsetsums_sample(t, predicates):
     sub_data = data.sample(t)
     mask = np.stack([pred(sub_data) for pred in predicates], axis=1)
     return sub_data[target].values @ mask * len(data) / t
+
+
 # -
 
 # We'll also want to evaluate the utility of these new query interfaces.
@@ -179,6 +185,8 @@ def evaluate_performance(interface_name, param):
         "answer rmse": compute_rmse_answers(answers),
         "reconstruction accuracy": compute_accuracy_reconstruction(reconstruction),
     }
+
+
 # -
 
 

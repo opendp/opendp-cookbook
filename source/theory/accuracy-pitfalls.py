@@ -53,8 +53,8 @@
 
 # +
 import numpy as np
-import pandas as pd
 import opendp.prelude as dp
+import pandas as pd
 
 dp.enable_features("contrib")
 
@@ -99,6 +99,8 @@ def make_mean_aggregator(data_size):
         dp.t.then_resize(size=data_size, constant=impute_constant)
         >> dp.t.then_mean()
     )
+
+
 # -
 
 # +
@@ -117,7 +119,7 @@ releases = [measurement(data) for _ in range(n_sims)]
 accuracy = dp.laplacian_scale_to_accuracy(scale, alpha)
 
 print(
-    "Accuracy interval (with accuracy value {0}) contains the true mean on D_tilde with probability {1}".format(
+    "Accuracy interval (with accuracy value {}) contains the true mean on D_tilde with probability {}".format(
         round(accuracy, 4),
         np.mean(
             [
@@ -130,7 +132,7 @@ print(
 )
 
 print(
-    "Accuracy interval (with accuracy value {0}) contains the true mean on D with probability {1}".format(
+    "Accuracy interval (with accuracy value {}) contains the true mean on D with probability {}".format(
         round(accuracy, 4),
         np.mean(
             [
@@ -175,7 +177,7 @@ releases = [measurement(data) for _ in range(n_sims)]
 accuracy = dp.laplacian_scale_to_accuracy(scale, alpha)
 
 print(
-    "Accuracy interval (with accuracy value {0}) contains the true mean on D_tilde with probability {1}".format(
+    "Accuracy interval (with accuracy value {}) contains the true mean on D_tilde with probability {}".format(
         round(accuracy, 4),
         np.mean(
             [
@@ -188,7 +190,7 @@ print(
 )
 
 print(
-    "Accuracy interval (with accuracy value {0}) contains the true mean on D with probability {1}".format(
+    "Accuracy interval (with accuracy value {}) contains the true mean on D with probability {}".format(
         round(accuracy, 4),
         np.mean(
             [
