@@ -334,7 +334,8 @@ for param in params:
     )
     epsilons[param] = dp.binary_search(
         lambda eps: dp.c.make_fix_delta(
-            dp.c.make_zCDP_to_approxDP(counter), delta
+            dp.c.make_zCDP_to_approxDP(counter),  # ruff: ignore[B023]
+            delta,
         ).check(max_influence, (eps, delta)),
         bounds=(1e-6, 100.0),
     )

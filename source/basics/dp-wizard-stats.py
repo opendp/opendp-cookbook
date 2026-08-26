@@ -121,7 +121,7 @@ def df_to_columns(df: DataFrame):
     ]
     sorted_rows = sorted(merged_key_rows, key=lambda row: get_interval_bottom(row[0]))
     transposed = tuple(zip(*sorted_rows))
-    return transposed if transposed else (tuple(), tuple())
+    return transposed if transposed else ((), ())
 
 
 def plot_bars(df: DataFrame, title: str, error: float = 0):  # pragma: no cover
@@ -367,7 +367,7 @@ grade_query = (
 
 # + tags=["tutorial"]
 summary = grade_query.summarize(alpha=1 - confidence)
-summary
+print(summary)
 # -
 
 # + [markdown] tags=["tutorial"]
@@ -376,7 +376,7 @@ summary
 
 grade_accuracy = summary["accuracy"].item()
 grade_stats = grade_query.release().collect()
-grade_stats
+print(grade_stats)
 
 # 95% confidence interval
 title = f"DP counts for 'grade', assuming {contributions} contributions per individual"
