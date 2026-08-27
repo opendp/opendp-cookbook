@@ -27,7 +27,7 @@ When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cook
 **To migrate `.ipynb` files**, use nbconvert:
 
 ```
-$ jupyter nbconvert example.ipynb --to script --output-dir source
+$ uv run jupyter nbconvert example.ipynb --to script --output-dir source
 ```
 
 You'll need to add `# +` and `# -` in a few places to help with formatting,
