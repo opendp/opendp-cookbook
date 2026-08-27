@@ -16,7 +16,8 @@ For local development:
 ```
 $ pip install uv
 $ uv sync --dev
-$ uv run make html
+$ uv run pre-commit install
+$ uv run cook.py
 ```
 
 The cookbook then be seen at `build/html/index.html`.
