@@ -1,6 +1,7 @@
 # 🍰 Desserts
 
-If you haven't gotten enough DP, these recipes are more complex or theory-oriented.
+```{include} blurb.txt
+```
 
 ```{toctree}
 :maxdepth: 1

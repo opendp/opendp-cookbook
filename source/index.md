@@ -11,10 +11,8 @@ and in some cases there may be fresher APIs that provide better results.
 
 ## 🥗 Starters
 
-Just starting with differential privacy, or OpenDP?
-To whet your appetite, these recipes provide ideas about what DP can do,
-and can also help you think about whether DP and OpenDP
-are the best approach to your problem.
+```{include} start/blurb.txt
+```
 
 ```{toctree}
 :class: hide-l1
@@ -24,7 +22,8 @@ start/index
 
 ## 🍝 Main courses
 
-Full examples of analysis with OpenDP in the real world.
+```{include} main/blurb.txt
+```
 
 ```{toctree}
 :class: hide-l1
@@ -34,7 +33,8 @@ main/index
 
 ## 🍰 Desserts
 
-If you haven't gotten enough DP, these recipes are more complex or theory-oriented.
+```{include} dessert/blurb.txt
+```
 
 ```{toctree}
 :class: hide-l1

@@ -1,6 +1,7 @@
 # 🍝 Main courses
 
-Full examples of analysis with OpenDP in the real world.
+```{include} blurb.txt
+```
 
 ```{toctree}
 :maxdepth: 1

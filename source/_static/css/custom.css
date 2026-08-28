@@ -3,7 +3,7 @@
     filter: invert();
 }
 
-/* On the homepage, hide the top-level in each ToC. */
+/* On the homepage, hide the top-level in each ToC, and just go straight to recipes. */
 .hide-l1 .toctree-l1 > a {
     display: none;
 }
