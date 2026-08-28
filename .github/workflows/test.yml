@@ -27,6 +27,6 @@ jobs:
 
       - run: uv sync --dev
 
-      - run: uv run make html
-
       - run: uv run pre-commit run --all-files
+
+      - run: uv run make html

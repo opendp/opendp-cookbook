@@ -45,4 +45,4 @@ dessert/index
 ## 📬 Send us your recipes!
 
 Have you done something nifty with OpenDP?
-[Contribute your recipe!](https://github.com/opendp/opendp-cookbook/) 
+[Contribute your recipe!](https://github.com/opendp/opendp-cookbook/)
