@@ -8,15 +8,18 @@ dependencies = [
     "matplotlib==3.11.0",
     "opendp[polars]==0.15.1",
     "pandas==3.0.5",
-    "pydata-sphinx-theme==0.20.0",
     "seaborn==0.13.2",
 ]
 
 [dependency-groups]
 dev = [
-    "dp-wizard-templates>=0.9.0",
+    "ipykernel>=7.3.0",
+    "jupyter-client>=8.9.1",
+    "jupytext>=1.19.5",
     "myst-parser>=5.1.0",
+    "nbconvert>=7.17.1",
     "nbsphinx>=0.9.8",
     "pre-commit>=4.6.2",
+    "pydata-sphinx-theme>=0.21.0",
     "sphinx>=9.1.0",
 ]
