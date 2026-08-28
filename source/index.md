@@ -36,9 +36,10 @@ If you haven't gotten enough DP, these recipes are more complex or theory-orient
 ```{toctree}
 :glob:
 dessert/*
+dessert/*/index
 ```
 
 ## 📬 Send us your recipes!
 
 Have you done something nifty with OpenDP?
-Contribute your recipe! 
+[Contribute your recipe!](https://github.com/opendp/opendp-cookbook/) 

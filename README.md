@@ -7,20 +7,25 @@
 The OpenDP Cookbook is a place for the community to show how they are using OpenDP, and for newcomers to pick up ideas.
 If you have a recipe to add, please make a PR!
 
-Recipes should be well documented, informatively titled, self-contained `.py` files.
-We use the [jupytext light format](https://jupytext.org/formats/scripts/#the-light-format)
-so comments will be parsed as markdown on conversion to notebook.
+## Develop
 
 For local development:
 
 ```
 $ pip install uv
 $ uv sync --dev
-$ uv run make html
+$ uv run make html  # Will take a couple minutes to run all notebooks the first time.
 ```
 
-The cookbook then be seen at `build/html/index.html`.
+The cookbook can then be seen at `build/html/index.html`.
 When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cookbook/) is automatically updated.
+
+## Contribute
+
+
+Recipes should be well documented, informatively titled, self-contained `.py` files.
+We use the [jupytext light format](https://jupytext.org/formats/scripts/#the-light-format)
+so comments will be parsed as markdown on conversion to notebook.
 
 ## Tips
 
