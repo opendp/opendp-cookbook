@@ -1,7 +1,6 @@
-# Basics
+# Attacks
 
 ```{toctree}
-:maxdepth: 1
 :glob:
 *
 ```

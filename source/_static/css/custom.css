@@ -1,4 +1,9 @@
-/* invert the opendp logo in dark mode */
+/* Invert the OpenDP logo in dark mode. */
 .logo__image.only-dark {
     filter: invert();
+}
+
+/* On the homepage, hide the top-level in each ToC, and just go straight to recipes. */
+.hide-l1 .toctree-l1 > a {
+    display: none;
 }

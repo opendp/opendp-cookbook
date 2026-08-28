@@ -1,0 +1,4 @@
+Just starting with differential privacy, or OpenDP?
+To whet your appetite, these recipes provide ideas about what DP can do,
+and can also help you think about whether DP and OpenDP
+are the best approach to your problem.
