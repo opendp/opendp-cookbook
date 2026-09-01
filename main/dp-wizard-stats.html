@@ -1,0 +1,989 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DP Wizard ouput example &#8212; OpenDP Cookbook 0.15.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=207b195f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=4befc426"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'main/dp-wizard-stats';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🍰 Desserts" href="../dessert/index.html" />
+    <link rel="prev" title="🍝 Main courses" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+  <aside class="bd-header-announcement d-print-none d-none" aria-label="Announcement" data-pst-announcement-url="https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-light" alt="OpenDP Cookbook 0.15.1 documentation - Home"/>
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-dark pst-js-only" alt="OpenDP Cookbook 0.15.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dessert/index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dessert/index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">DP Wizard ouput example</a></li>
+
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🍝 Main courses</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">DP Wizard ouput example</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="DP-Wizard-ouput-example">
+<h1>DP Wizard ouput example<a class="headerlink" href="#DP-Wizard-ouput-example" title="Link to this heading">#</a></h1>
+<p><a class="reference external" href="https://github.com/opendp/dp-wizard">DP Wizard</a> makes it easier to get started with differential privacy. DP Wizard demonstrates how to calculate DP statistics or create a synthetic dataset from the data you provide. This notebook is an example of DP Wizard output, running on the built-in demo dataset.</p>
+</section>
+<hr class="docutils" />
+<section id="DP-Statistics-for-grade-grouped-by-class_year_str">
+<h1>DP Statistics for <code class="docutils literal notranslate"><span class="pre">grade</span></code> grouped by <code class="docutils literal notranslate"><span class="pre">class_year_str</span></code><a class="headerlink" href="#DP-Statistics-for-grade-grouped-by-class_year_str" title="Link to this heading">#</a></h1>
+<p>This demonstrates how to calculate DP Statistics for <code class="docutils literal notranslate"><span class="pre">grade</span></code> grouped by <code class="docutils literal notranslate"><span class="pre">class_year_str</span></code> using OpenDP (<a class="reference external" href="https://docs.opendp.org">https://docs.opendp.org</a>). Generated by DP Wizard v0.10.0 (<a class="github reference external" href="https://github.com/opendp/dp-wizard">opendp/dp-wizard</a>) on Aug 14, 2026 at 04:09PM.</p>
+<ul class="simple">
+<li><p>Privacy Budget (Epsilon) = 2.0</p></li>
+<li><p>Maximum of 10 rows per individual</p></li>
+<li><p>Columns:</p>
+<ul>
+<li><p>student_id (Integer): Not used</p></li>
+<li><p>class_year_str (String): “first year”, “sophomore”, “junior”, “senior”</p></li>
+<li><p>hw_number (Integer): Not used</p></li>
+<li><p>grade (Integer): Histogram clipped to 50.0-100.0</p></li>
+<li><p>self_assessment (Integer): Not used</p></li>
+</ul>
+</li>
+</ul>
+<p>Jump ahead:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#Analysis"><span class="std std-ref">Analysis</span></a></p></li>
+<li><p><a class="reference internal" href="#Results"><span class="std std-ref">Results</span></a></p></li>
+</ul>
+<section id="Prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#Prerequisites" title="Link to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">opendp.prelude</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="c1"># The OpenDP team is working to vet the core algorithms.</span>
+<span class="c1"># Until that is complete we need to opt-in to use these features.</span>
+<span class="n">dp</span><span class="o">.</span><span class="n">enable_features</span><span class="p">(</span><span class="s2">"contrib"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Then define some utility functions to handle dataframes and plot results:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">round_2</span><span class="p">(</span><span class="n">number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    &gt;&gt;&gt; round_2(1234)</span>
+<span class="sd">    1200.0</span>
+<span class="sd">    &gt;&gt;&gt; round_2(0.001234)</span>
+<span class="sd">    0.0012</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">number</span><span class="si">:</span><span class="s2">.2g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_cut_points</span><span class="p">(</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">bin_count</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Returns one more cut point than the bin_count,</span>
+<span class="sd">    with the cut points rounded to two decimal places</span>
+<span class="sd">    (There are actually two more bins, extending to</span>
+<span class="sd">    -inf and +inf, but we'll ignore those.)</span>
+
+<span class="sd">    Cut points are evenly spaced from lower_bound to upper_bound,</span>
+
+<span class="sd">    &gt;&gt;&gt; make_cut_points(0, 10, 2)</span>
+<span class="sd">    [0.0, 5.0, 10.0]</span>
+<span class="sd">    &gt;&gt;&gt; make_cut_points(-1, 1, 4)</span>
+<span class="sd">    [-1.0, -0.5, 0.0, 0.5, 1.0]</span>
+
+<span class="sd">    Will return fewer points than requested if cut points</span>
+<span class="sd">    only differ in later decimal places.</span>
+
+<span class="sd">    &gt;&gt;&gt; make_cut_points(1, 1.01, 4)</span>
+<span class="sd">    [1.0]</span>
+<span class="sd">    """</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="p">(</span><span class="n">upper_bound</span> <span class="o">-</span> <span class="n">lower_bound</span><span class="p">)</span> <span class="o">/</span> <span class="n">bin_count</span>
+    <span class="c1"># Duplicate values would cause an error in Polars.</span>
+    <span class="c1"># Use a set to return unique values.</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">round_2</span><span class="p">(</span><span class="n">lower_bound</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">bin_width</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bin_count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)})</span>
+
+
+<span class="c1"># These functions are used both in the application</span>
+<span class="c1"># and in generated notebooks.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataFrame</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_interval_bottom</span><span class="p">(</span><span class="n">interval</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    &gt;&gt;&gt; get_interval_bottom("(10, 20]")</span>
+<span class="sd">    10.0</span>
+<span class="sd">    &gt;&gt;&gt; get_interval_bottom("-10")</span>
+<span class="sd">    -10.0</span>
+<span class="sd">    &gt;&gt;&gt; get_interval_bottom("unexpected")</span>
+<span class="sd">    0.0</span>
+<span class="sd">    """</span>
+    <span class="c1"># Intervals from Polars default to open on the left,</span>
+    <span class="c1"># so that's the only case we cover with replace().</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">interval</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"("</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+
+<span class="n">delim</span> <span class="o">=</span> <span class="s2">"; "</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_group</span><span class="p">(</span><span class="n">merged</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    &gt;&gt;&gt; get_group("value")</span>
+<span class="sd">    ''</span>
+<span class="sd">    &gt;&gt;&gt; get_group("group 1; value")</span>
+<span class="sd">    'group 1'</span>
+<span class="sd">    &gt;&gt;&gt; get_group("group 1; group 2; value")</span>
+<span class="sd">    'group 1; group 2'</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">delim</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">df_to_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Transform a Dataframe into a format that is easier to plot,</span>
+<span class="sd">    parsing the interval strings to sort them as numbers.</span>
+<span class="sd">    """</span>
+    <span class="n">merged_key_rows</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="o">*</span><span class="n">keys</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">rows</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="n">sorted_rows</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">merged_key_rows</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">get_interval_bottom</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">transposed</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">sorted_rows</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">transposed</span> <span class="k">if</span> <span class="n">transposed</span> <span class="k">else</span> <span class="p">((),</span> <span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_bars</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>  <span class="c1"># pragma: no cover</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Given a Dataframe, make a bar plot of the data in the last column,</span>
+<span class="sd">    with labels from the prior columns.</span>
+<span class="sd">    """</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">"figure.figsize"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">bins</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">df_to_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">_figure</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">top_bins</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">get_group</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bins</span><span class="p">})</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">tab10</span>  <span class="c1"># pyright: ignore[reportAttributeAccessIssue]</span>
+    <span class="n">bar_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmap</span><span class="p">(</span><span class="n">top_bins</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">get_group</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="o">%</span> <span class="n">cmap</span><span class="o">.</span><span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bins</span><span class="p">]</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">bar_colors</span><span class="p">,</span> <span class="n">yerr</span><span class="o">=</span><span class="n">error</span><span class="p">)</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Analysis">
+<h2>Analysis<a class="headerlink" href="#Analysis" title="Link to this heading">#</a></h2>
+<p>Based on the input you provided, for each column we’ll create a Polars expression that describes how we want to summarize that column.</p>
+<section id="Expression-for-grade">
+<h3>Expression for <code class="docutils literal notranslate"><span class="pre">grade</span></code><a class="headerlink" href="#Expression-for-grade" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="c1"># See the OpenDP Library docs for more on making private histograms:</span>
+<span class="c1"># https://docs.opendp.org/en/v0.14.2/getting-started/tabular-data/grouping.html</span>
+
+<span class="c1"># Use the public information to make cut points for 'grade':</span>
+<span class="n">grade_cut_points</span> <span class="o">=</span> <span class="n">make_cut_points</span><span class="p">(</span>
+    <span class="n">lower_bound</span><span class="o">=</span><span class="mf">50.0</span><span class="p">,</span>
+    <span class="n">upper_bound</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">bin_count</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Use these cut points to add a new binned column to the table:</span>
+<span class="n">grade_bin_expr</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"grade"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">grade_cut_points</span><span class="p">)</span>  <span class="c1"># Use "left_closed=True" to switch endpoint inclusion.</span>
+    <span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"grade_bin"</span><span class="p">)</span>  <span class="c1"># Give the new column a name.</span>
+    <span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">String</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Context">
+<h3>Context<a class="headerlink" href="#Context" title="Link to this heading">#</a></h3>
+<p>Next, we’ll define our Context. This is where we set the privacy budget, and set the weight for each query under that overall budget.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Each individual can contribute this many rows.</span>
+<span class="n">contributions</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">privacy_unit</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">unit_of</span><span class="p">(</span><span class="n">contributions</span><span class="o">=</span><span class="n">contributions</span><span class="p">)</span>
+<span class="n">privacy_loss</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">loss_of</span><span class="p">(</span>
+    <span class="c1">#</span>
+    <span class="c1"># Your privacy budget is captured in the "epsilon" parameter.</span>
+    <span class="c1"># Larger values increase the risk that personal data could be</span>
+    <span class="c1"># reconstructed, so choose the smallest value that gives you</span>
+    <span class="c1"># the needed accuracy. You can also compare your budget to</span>
+    <span class="c1"># other projects:</span>
+    <span class="c1"># https://registry.opendp.org/deployments-registry/</span>
+    <span class="c1">#</span>
+    <span class="n">epsilon</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="c1"># Not necessary in this case,</span>
+    <span class="c1"># but other analyses require a very small "delta" value.</span>
+    <span class="c1"># https://docs.opendp.org/en/v0.14.2/getting-started/tabular-data/grouping.html#Stable-Keys</span>
+    <span class="n">delta</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># or 1 / max(1e7, 1000),</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clip</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    &gt;&gt;&gt; _clip(-5, 0, 10)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; _clip(5, 0, 10)</span>
+<span class="sd">    5</span>
+<span class="sd">    &gt;&gt;&gt; _clip(15, 0, 10)</span>
+<span class="sd">    10</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">),</span> <span class="n">lower_bound</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_demo_csv</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">contributions</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    &gt;&gt;&gt; import tempfile</span>
+<span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
+<span class="sd">    &gt;&gt;&gt; import csv</span>
+<span class="sd">    &gt;&gt;&gt; with tempfile.NamedTemporaryFile() as temp:</span>
+<span class="sd">    ...     make_demo_csv(Path(temp.name), 10)</span>
+<span class="sd">    ...     with open(temp.name, newline="") as csv_handle:</span>
+<span class="sd">    ...         reader = csv.DictReader(csv_handle)</span>
+<span class="sd">    ...         reader.fieldnames</span>
+<span class="sd">    ...         rows = list(reader)</span>
+<span class="sd">    ...         rows[0].values()</span>
+<span class="sd">    ...         rows[-1].values()</span>
+<span class="sd">    ['student_id', 'class_year_str', 'hw_number', 'grade', 'self_assessment']</span>
+<span class="sd">    dict_values(['1', 'sophomore', '1', '82', '0'])</span>
+<span class="sd">    dict_values(['100', 'sophomore', '10', '78', '0'])</span>
+<span class="sd">    """</span>
+    <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># So the mock data will be stable across runs.</span>
+    <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">demo_csv_handle</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">"student_id"</span><span class="p">,</span>
+            <span class="s2">"class_year_str"</span><span class="p">,</span>
+            <span class="s2">"hw_number"</span><span class="p">,</span>
+            <span class="s2">"grade"</span><span class="p">,</span>
+            <span class="s2">"self_assessment"</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">class_year_map</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"first year"</span><span class="p">,</span> <span class="s2">"sophomore"</span><span class="p">,</span> <span class="s2">"junior"</span><span class="p">,</span> <span class="s2">"senior"</span><span class="p">]</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictWriter</span><span class="p">(</span><span class="n">demo_csv_handle</span><span class="p">,</span> <span class="n">fieldnames</span><span class="o">=</span><span class="n">fields</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writeheader</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">student_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">101</span><span class="p">):</span>
+            <span class="n">class_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_clip</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">hw_number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">contributions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># Older students do slightly better in the class,</span>
+                <span class="c1"># but each assignment gets harder.</span>
+                <span class="n">mean_grade</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">class_year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">hw_number</span>
+                <span class="n">grade</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">_clip</span><span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">gauss</span><span class="p">(</span><span class="n">mean_grade</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+                <span class="n">self_assessment</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">grade</span> <span class="o">&gt;</span> <span class="mi">90</span> <span class="ow">and</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.1</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">"student_id"</span><span class="p">:</span> <span class="n">student_id</span><span class="p">,</span>
+                        <span class="s2">"class_year_str"</span><span class="p">:</span> <span class="n">class_year_map</span><span class="p">[</span><span class="n">class_year</span><span class="p">],</span>
+                        <span class="s2">"hw_number"</span><span class="p">:</span> <span class="n">hw_number</span><span class="p">,</span>
+                        <span class="s2">"grade"</span><span class="p">:</span> <span class="n">grade</span><span class="p">,</span>
+                        <span class="s2">"self_assessment"</span><span class="p">:</span> <span class="n">self_assessment</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+
+<span class="n">make_demo_csv</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">"/tmp/demo.csv"</span><span class="p">),</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># See the OpenDP Library docs for more on Context:</span>
+<span class="c1"># https://docs.opendp.org/en/v0.14.2/api/user-guide/context/index.html#context</span>
+<span class="n">stats_context</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">compositor</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span>
+        <span class="s2">"/tmp/demo.csv"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf8-lossy"</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">grade_bin_expr</span><span class="p">),</span>
+    <span class="n">privacy_unit</span><span class="o">=</span><span class="n">privacy_unit</span><span class="p">,</span>
+    <span class="n">privacy_loss</span><span class="o">=</span><span class="n">privacy_loss</span><span class="p">,</span>
+    <span class="n">split_by_weights</span><span class="o">=</span><span class="p">[</span>  <span class="c1"># With only one query, the entire budget is allocated to that query:</span>
+        <span class="mi">1</span><span class="p">,</span>  <span class="c1"># grade</span>
+    <span class="p">],</span>
+    <span class="n">margins</span><span class="o">=</span><span class="p">[</span>  <span class="c1"># "max_partition_length" should be a loose upper bound,</span>
+        <span class="c1"># for example, the size of the total population being sampled.</span>
+        <span class="c1"># https://docs.opendp.org/en/v0.14.2/api/python/opendp.extras.polars.html#opendp.extras.polars.Margin.max_partition_length</span>
+        <span class="c1">#</span>
+        <span class="c1"># In production, "max_groups" should be set by considering</span>
+        <span class="c1"># the number of possible values for each grouping column,</span>
+        <span class="c1"># and taking their product.</span>
+        <span class="n">dp</span><span class="o">.</span><span class="n">polars</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span>
+            <span class="n">by</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">"class_year_str"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"first year"</span><span class="p">,</span> <span class="s2">"sophomore"</span><span class="p">,</span> <span class="s2">"junior"</span><span class="p">,</span> <span class="s2">"senior"</span><span class="p">]</span>
+                <span class="p">}</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">max_groups</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">dp</span><span class="o">.</span><span class="n">polars</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span>
+            <span class="n">by</span><span class="o">=</span><span class="p">(</span>
+                <span class="p">[</span><span class="s2">"grade_bin"</span><span class="p">]</span>
+                <span class="o">+</span> <span class="nb">list</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">"class_year_str"</span><span class="p">:</span> <span class="p">[</span>
+                            <span class="s2">"first year"</span><span class="p">,</span>
+                            <span class="s2">"sophomore"</span><span class="p">,</span>
+                            <span class="s2">"junior"</span><span class="p">,</span>
+                            <span class="s2">"senior"</span><span class="p">,</span>
+                        <span class="p">]</span>
+                    <span class="p">}</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                <span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">invariant</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">,</span>  <span class="c1"># Consider the bin values to be public information.</span>
+        <span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>A note on <code class="docutils literal notranslate"><span class="pre">utf8-lossy</span></code>: CSVs can use different “character encodings” to represent characters outside the ASCII character set, but out-of-the-box the Polars library only supports UTF8. Specifying <code class="docutils literal notranslate"><span class="pre">utf8-lossy</span></code> preserves as much information as possible, and any unrecognized characters will be replaced by “�”. If this is not sufficient, you will need to preprocess your data to reencode it as UTF8.</p>
+<p>We suggest using <code class="docutils literal notranslate"><span class="pre">ignore_errors=True</span></code>. Runtime errors that depend on a single value would leak information and violate the DP guarantee, so it is safer to ignore them. That said, if a significant number of records are ignored because of errors, it will bias results.</p>
+</section>
+</section>
+<section id="Results">
+<h2>Results<a class="headerlink" href="#Results" title="Link to this heading">#</a></h2>
+<p>Finally, we run the queries and plot the results.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">confidence</span> <span class="o">=</span> <span class="mf">0.95</span>  <span class="c1"># 95% confidence interval</span>
+</pre></div>
+</div>
+</div>
+<section id="Query-for-grade:">
+<h3>Query for <code class="docutils literal notranslate"><span class="pre">grade</span></code>:<a class="headerlink" href="#Query-for-grade:" title="Link to this heading">#</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"grade_bin"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"class_year_str"</span><span class="p">]</span>
+<span class="n">grade_query</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">stats_context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">len</span><span class="p">()</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">noise</span><span class="p">()</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"count"</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">with_keys</span><span class="p">(</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"class_year_str"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"first year"</span><span class="p">,</span> <span class="s2">"sophomore"</span><span class="p">,</span> <span class="s2">"junior"</span><span class="p">,</span> <span class="s2">"senior"</span><span class="p">]}</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can summarize the statistic to get the accuracy. More on <code class="docutils literal notranslate"><span class="pre">`summarize()</span></code> in the OpenDP docs &lt;<a class="reference external" href="https://docs.opendp.org/en/v0.14.2/api/python/opendp.extras.polars.html#opendp.extras.polars.LazyFrameQuery.summarize">https://docs.opendp.org/en/v0.14.2/api/python/opendp.extras.polars.html#opendp.extras.polars.LazyFrameQuery.summarize</a>&gt;`__.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">summary</span> <span class="o">=</span> <span class="n">grade_query</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">confidence</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+shape: (1, 5)
+┌────────┬──────────────┬─────────────────┬───────┬───────────┐
+│ column ┆ aggregate    ┆ distribution    ┆ scale ┆ accuracy  │
+│ ---    ┆ ---          ┆ ---             ┆ ---   ┆ ---       │
+│ str    ┆ str          ┆ str             ┆ f64   ┆ f64       │
+╞════════╪══════════════╪═════════════════╪═══════╪═══════════╡
+│ count  ┆ Frame Length ┆ Integer Laplace ┆ 5.0   ┆ 15.453703 │
+└────────┴──────────────┴─────────────────┴───────┴───────────┘
+</pre></div></div>
+</div>
+<p>Proceding to the DP release:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grade_accuracy</span> <span class="o">=</span> <span class="n">summary</span><span class="p">[</span><span class="s2">"accuracy"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">grade_stats</span> <span class="o">=</span> <span class="n">grade_query</span><span class="o">.</span><span class="n">release</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">grade_stats</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+shape: (14, 3)
+┌────────────────┬───────────┬───────┐
+│ class_year_str ┆ grade_bin ┆ count │
+│ ---            ┆ ---       ┆ ---   │
+│ str            ┆ str       ┆ u32   │
+╞════════════════╪═══════════╪═══════╡
+│ first year     ┆ (60, 70]  ┆ 8     │
+│ first year     ┆ (80, 90]  ┆ 256   │
+│ sophomore      ┆ (90, 100] ┆ 116   │
+│ junior         ┆ (80, 90]  ┆ 51    │
+│ sophomore      ┆ (80, 90]  ┆ 175   │
+│ …              ┆ …         ┆ …     │
+│ first year     ┆ (90, 100] ┆ 144   │
+│ senior         ┆ (90, 100] ┆ 60    │
+│ junior         ┆ (70, 80]  ┆ 7     │
+│ sophomore      ┆ (60, 70]  ┆ 4     │
+│ sophomore      ┆ (70, 80]  ┆ 63    │
+└────────────────┴───────────┴───────┘
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 95% confidence interval</span>
+<span class="n">title</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"DP counts for 'grade', assuming </span><span class="si">{</span><span class="n">contributions</span><span class="si">}</span><span class="s2"> contributions per individual"</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">group_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"class_year_str"</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">group_names</span><span class="p">:</span>
+    <span class="n">title</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">" (grouped by </span><span class="si">{</span><span class="s1">'/'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group_names</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+<span class="n">plot_bars</span><span class="p">(</span><span class="n">grade_stats</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">grade_accuracy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/main_dp-wizard-stats_21_0.png" src="../_images/main_dp-wizard-stats_21_0.png" />
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">None</span></code> values above may indicate strings which could not be converted to numbers.</p>
+<p>If we try to run more queries at this point, it will error. Once the privacy budget is consumed, the library prevents you from running any more queries.</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🍝 Main courses</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../dessert/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🍰 Desserts</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">DP Wizard ouput example</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#DP-Statistics-for-grade-grouped-by-class_year_str">DP Statistics for <code class="docutils literal notranslate"><span class="pre">grade</span></code> grouped by <code class="docutils literal notranslate"><span class="pre">class_year_str</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Analysis">Analysis</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Expression-for-grade">Expression for <code class="docutils literal notranslate"><span class="pre">grade</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Context">Context</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Results">Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Query-for-grade:">Query for <code class="docutils literal notranslate"><span class="pre">grade</span></code>:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/main/dp-wizard-stats.py.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, OpenDP Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
