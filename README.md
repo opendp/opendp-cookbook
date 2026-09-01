@@ -39,7 +39,7 @@ For local development:
 $ pip install uv
 $ uv sync --dev
 $ uv run pre-commit install
-$ uv run make html  # Or provide a filename to render just one file.
+$ uv run make html
 ```
 
 The cookbook can then be seen at `build/html/index.html`.

@@ -1,4 +1,4 @@
-# # Effects of dataset height and width on DP sums
+# # Effects of dataset shape on DP sums
 #
 # Differential privacy works best on datasets that are "tall and skinny":
 # They have a lot of rows, but only a small number of columns under analysis.
