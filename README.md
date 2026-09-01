@@ -7,20 +7,6 @@
 The OpenDP Cookbook is a place for the community to show how they are using OpenDP, and for newcomers to pick up ideas.
 If you have a recipe to add, please make a PR!
 
-## Develop
-
-For local development:
-
-```
-$ pip install uv
-$ uv sync --dev
-$ uv run pre-commit install
-$ uv run make html  # Or provide a filename to render just one file.
-```
-
-The cookbook can then be seen at `build/html/index.html`.
-When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cookbook/) is automatically updated.
-
 ## Contribute
 
 Thank you for contributing to the OpenDP Cookbook!
@@ -43,7 +29,21 @@ Finally, where should the input data come from?
 - If it's possible, a small function that generates a random dataframe is ideal.
 - If it fits your analysis, feel free to reference the [example data provided with OpenDP](https://docs.opendp.org/en/stable/api/python/opendp.extras.examples.html).
 - The [sklearn datasets](https://sklearn.org/stable/api/sklearn.datasets.html) are a possibility, if necessary.
-- Please **do not** download datasets from the internet in your script.
+- Please do not download datasets from the internet in your script: We want to minimize dependencies on outside resources.
+
+## Develop
+
+For local development:
+
+```
+$ pip install uv
+$ uv sync --dev
+$ uv run pre-commit install
+$ uv run make html
+```
+
+The cookbook can then be seen at `build/html/index.html`.
+When PRs are merged, the [cookbook website](https://opendp.github.io/opendp-cookbook/) is automatically updated.
 
 ## Tips
 

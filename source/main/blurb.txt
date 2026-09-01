@@ -1,1 +1,1 @@
-Full examples of analysis with OpenDP in the real world.
+Full examples of analysis with OpenDP.

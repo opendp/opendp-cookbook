@@ -1,3 +1,11 @@
+# # DP Wizard ouput example
+#
+# [DP Wizard](https://github.com/opendp/dp-wizard) makes it easier to get started with differential privacy.
+# DP Wizard demonstrates how to calculate DP statistics or create a synthetic dataset from the data you provide.
+# This notebook is an example of DP Wizard output, running on the built-in demo dataset.
+#
+# ----
+#
 # # DP Statistics for `grade` grouped by `class_year_str`
 #
 # This demonstrates how to calculate DP Statistics for `grade` grouped by `class_year_str` using OpenDP (https://docs.opendp.org).

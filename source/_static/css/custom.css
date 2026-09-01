@@ -7,3 +7,11 @@
 .hide-l1 .toctree-l1 > a {
     display: none;
 }
+
+/* Light background color, to distinguish from main docs page. */
+header.bd-header, footer.bd-footer {
+    background-color: #FFF8E8 !important;
+}
+html[data-theme="dark"] header.bd-header, html[data-theme="dark"] footer.bd-footer {
+    background-color: #222 !important;
+}
