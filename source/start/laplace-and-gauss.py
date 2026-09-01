@@ -1,7 +1,7 @@
 # # Just adding Laplace and Gaussian noise
 #
 # Using higher-level APIs helps to ensure the correctness of your analysis,
-# but sometimes you just want to add noise. 
+# but sometimes you just want to add noise.
 
 # +
 import opendp.prelude as dp
