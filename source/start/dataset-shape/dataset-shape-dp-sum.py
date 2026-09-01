@@ -1,13 +1,12 @@
 # # Effects of dataset height and width on DP sums
 #
-# Differential privacy will work best on datasets that are "tall and skinny":
+# Differential privacy works best on datasets that are "tall and skinny":
 # They have a lot of rows, but only a small number of columns under analysis.
 # Having more rows means that the contribution of any particular row is smaller,
 # and having fewer columns reveals less information for every row.
 #
 # But how tall is tall enough? And how many columns is too many columns?
-# In this notebook we'll demonstrate the effects of DP on different kinds of datasets,
-# so you you can make an informed decision about whether DP is an appropriate technology.
+# In this notebook we'll demonstrate DP sums on different kinds of datasets.
 
 
 import matplotlib.pyplot as plt
