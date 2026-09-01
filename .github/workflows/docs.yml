@@ -47,7 +47,7 @@ jobs:
             find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
             cp -r /tmp/build/html/* .
             echo "Skip Jekyll and deploy underscore directories verbatim." > .nojekyll
-            # TODO: echo cookbook.opendp.org > CNAME
+            echo cookbook.opendp.org > CNAME
 
             git add --all --force
             git commit --allow-empty-message --message "$(git log $(git rev-parse origin/main) --oneline --format=%B -n1 | head -n1)"
