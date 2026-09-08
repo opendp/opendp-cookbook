@@ -19,7 +19,7 @@ We don't plan to do rigorous code reviews here, but we do have a few requirement
 so comment blocks in the script will be parsed as markdown on conversion to notebook.
 - We use precommit to enforce [ruff](https://docs.astral.sh/ruff/) style.
 If a contribution looks good in other respects, the maintainers may apply ruff without bothering the author.
-- File names should be relatively short; Titles (as a markdown `#` header in the first comment block) should be informative.
+- File names should be relatively short. Titles (as a markdown `#` header in the first comment block) should be informative. (If there are multiple top-level markdown titles, all will be included in the table of contents.)
 - Don't use subprocess, or notebook magic commands, or read or write outside of a temp directory.
 - There should be a lot of explanation: Aim for 50/50 code/prose.
 - Additional dependencies are not forbidden, but they are discouraged. Additions (via uv) will be evaluated on a case-by-case basis.
