@@ -10,7 +10,7 @@
 project = "OpenDP Cookbook"
 copyright = "2026, OpenDP Project"
 author = "OpenDP Project"
-release = "0.15.1"  # Match the library version.
+release = "0.16.0"  # Match the library version.
 
 
 # -- General configuration --

@@ -12,6 +12,11 @@
 # This recipe shows where the bias of clipping comes from, how big it gets,
 # and when you should use each option.
 #
+# A note on words: OpenDP's own warning calls this "clamping at zero".
+# Here "clipping" always means raising a negative noisy output to zero.
+# It is not the same as clipping each person's contribution before noise is added,
+# which is a different (and important) step in many DP analyses.
+#
 # ## The setup
 #
 # Imagine a table of counts that is broken down finely:
@@ -54,6 +59,7 @@ data = pl.LazyFrame(
 # The region and category names are public, so we can list every cell up front.
 # This matters: if we only released the cells that appear in the data,
 # the list of cells itself would leak information.
+# For the same reason, the list of keys must come from public knowledge, never from the data itself.
 # Passing the full list of keys with `.with_keys()` means empty cells get a noisy count too.
 
 # +
@@ -94,14 +100,15 @@ context = dp.Context.compositor(
 
 with warnings.catch_warnings(record=True) as caught:
     warnings.simplefilter("always")
-    query = context.query().group_by("region", "category").agg(dp.len())
+    dp.len()
 
 for w in caught:
     print(w.message)
 # -
 
 # So from now on we always say which one we want.
-# Here is the noise scale for one cell:
+# Here is the noise scale for one cell.
+# The `accuracy` column says that, with 95% confidence, each noisy cell is within that distance of its true count.
 
 # +
 context.query().group_by("region", "category").agg(dp.len(signed=True)).with_keys(
@@ -116,8 +123,10 @@ context.query().group_by("region", "category").agg(dp.len(signed=True)).with_key
 # `query.resolve()` turns a query into an OpenDP measurement,
 # which we can call on the data as often as we like.
 # Every call is a fresh release with the same noise scale as above, and costs another $\epsilon = 1$.
-# That is fine for a demonstration on made-up data, but in a real analysis
-# you would track the total budget spent.
+# Be careful: calling the measurement directly skips the Context's budget check entirely.
+# The 400 releases below add up to $\epsilon = 400$, and nothing stops or records that.
+# That is fine for a demonstration on made-up data, but never do this with real data:
+# use `query.release()`, which the Context checks against your budget.
 
 # +
 n_repeats = 200
@@ -197,7 +206,8 @@ plt.show()
 
 # An empty cell comes out at about 0.43 on average when clipped, instead of 0.
 # By a true count of about 5 the bias is close to zero.
-# Signed counts sit at zero bias for every cell size.
+# Signed counts sit near zero bias for every cell size.
+# The points that wander a little come from cell sizes with only a few cells, so they are just sampling noise.
 #
 # ## Clipping is not worse for one cell
 #
@@ -207,7 +217,7 @@ plt.show()
 #
 # To see this without extra randomness getting in the way, we compare on the same noise draws:
 # we take the signed releases and clip them ourselves with `np.maximum(..., 0)`,
-# which is what `signed=False` does inside OpenDP.
+# which gives the same distribution as `signed=False` in OpenDP.
 # Here is the average absolute error per cell for each option:
 
 # +
@@ -233,10 +243,12 @@ for c in [0, 1, 2, 5]:
 # The natural thing is to add up all 400 cells.
 #
 # With signed counts, the errors in each cell are independent and centered on zero,
-# so the error in the total stays centered on zero. It grows only with the square root of the number of cells.
+# so the error in the total stays centered on zero.
+# Its typical size grows only with the square root of the number of cells.
 #
 # With clipped counts, every small cell adds its own positive bias.
-# Bias doesn't cancel, so it grows in step with the number of cells.
+# Bias doesn't cancel, so it grows in step with the number of small cells.
+# (Large cells add almost nothing: by a true count of 5 the bias per cell is about 0.003.)
 
 # +
 true_total = truth.sum()
@@ -268,7 +280,8 @@ print(
 # -
 
 # The clipped total is too high in essentially every repeat, by roughly the amount the theory predicts.
-# The signed total is sometimes high and sometimes low, and right on average.
+# The signed total is sometimes high and sometimes low.
+# Its average over 200 repeats lands within a few people of zero, which is the size of difference that random noise alone produces.
 #
 # The same thing happens at every level of the table.
 # A region total built from 8 clipped cells is biased upward,
@@ -318,6 +331,8 @@ plt.show()
 # - If you need both a clean-looking table and accurate totals,
 #   another option is to release the totals as their own queries,
 #   instead of asking readers to add up clipped cells.
+#   Those queries need their own share of the privacy budget, so plan for them when you create the Context
+#   (for example with `split_evenly_over=2`). The released totals also won't exactly equal the sum of the released cells.
 #
 # In OpenDP 0.16, leaving out `signed` still clips, with a warning.
 # A future release will make `signed=True` the default,
