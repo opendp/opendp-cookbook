@@ -12,7 +12,7 @@
 # This recipe shows where the bias of clipping comes from, how big it gets,
 # and when you should use each option.
 #
-# A note on words: OpenDP's own warning calls this "clamping at zero".
+# A note on words: OpenDP's warning says counts are "clamped at zero".
 # Here "clipping" always means raising a negative noisy output to zero.
 # It is not the same as clipping each person's contribution before noise is added,
 # which is a different (and important) step in many DP analyses.
@@ -57,9 +57,8 @@ data = pl.LazyFrame(
 # -
 
 # The region and category names are public, so we can list every cell up front.
-# This matters: if we only released the cells that appear in the data,
-# the list of cells itself would leak information.
-# For the same reason, the list of keys must come from public knowledge, never from the data itself.
+# This matters: the list of keys must come from public knowledge, never from the data.
+# If we only released the cells that appear in the data, the list of cells itself would leak information.
 # Passing the full list of keys with `.with_keys()` means empty cells get a noisy count too.
 
 # +
@@ -124,9 +123,9 @@ context.query().group_by("region", "category").agg(dp.len(signed=True)).with_key
 # which we can call on the data as often as we like.
 # Every call is a fresh release with the same noise scale as above, and costs another $\epsilon = 1$.
 # Be careful: calling the measurement directly skips the Context's budget check entirely.
-# The 400 releases below add up to $\epsilon = 400$, and nothing stops or records that.
-# That is fine for a demonstration on made-up data, but never do this with real data:
-# use `query.release()`, which the Context checks against your budget.
+# The 400 table releases below (200 for each option) add up to $\epsilon = 400$, and nothing stops or records that.
+# That is fine for a demonstration on made-up data. With real data, use `query.release()`,
+# which the Context checks against your budget, unless you track the budget yourself.
 
 # +
 n_repeats = 200
