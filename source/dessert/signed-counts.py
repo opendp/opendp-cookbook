@@ -12,7 +12,7 @@
 # This recipe shows where the bias of clipping comes from, how big it gets,
 # and when you should use each option.
 #
-# A note on words: OpenDP's warning says counts are "clamped at zero".
+# A note on words: you may also see this called "clamping at zero".
 # Here "clipping" always means raising a negative noisy output to zero.
 # It is not the same as clipping each person's contribution before noise is added,
 # which is a different (and important) step in many DP analyses.
@@ -27,8 +27,6 @@
 # We make up a dataset of 2,000 people. Region and category popularity both follow a long-tailed distribution.
 
 # +
-import warnings
-
 import matplotlib.pyplot as plt
 import numpy as np
 import opendp.prelude as dp
@@ -59,7 +57,11 @@ data = pl.LazyFrame(
 # The region and category names are public, so we can list every cell up front.
 # This matters: the list of keys must come from public knowledge, never from the data.
 # If we only released the cells that appear in the data, the list of cells itself would leak information.
-# Passing the full list of keys with `.with_keys()` means empty cells get a noisy count too.
+#
+# We also compute the exact count in every cell.
+# These exact counts are not differentially private.
+# We use them only to measure how far the DP releases are from the truth;
+# a real analysis would never publish them.
 
 # +
 keys = pl.LazyFrame({"region": regions}).join(
@@ -87,7 +89,13 @@ print(f"{(true_counts['len'] <= 3).sum()} have 3 or fewer people")
 # Each person is in exactly one cell, so this table costs the same privacy budget as one count.
 # At $\epsilon = 1$, OpenDP adds integer Laplace noise with scale 1 to each cell.
 #
-# If we leave out `signed`, OpenDP 0.16 keeps the old behavior (clipping) and warns us that the default will change:
+# We compare two versions of the same query:
+# `dp.len(signed=False)` clips negative noisy counts to zero,
+# and `dp.len(signed=True)` keeps them.
+#
+# Passing the full list of keys with `.with_keys()` means empty cells get a noisy count too.
+# Here is the noise scale for one cell.
+# The `accuracy` column says that, with 95% confidence, each noisy cell is within that distance of its true count.
 
 # +
 context = dp.Context.compositor(
@@ -97,26 +105,13 @@ context = dp.Context.compositor(
     split_evenly_over=1,
 )
 
-with warnings.catch_warnings(record=True) as caught:
-    warnings.simplefilter("always")
-    dp.len()
-
-for w in caught:
-    print(w.message)
-# -
-
-# So from now on we always say which one we want.
-# Here is the noise scale for one cell.
-# The `accuracy` column says that, with 95% confidence, each noisy cell is within that distance of its true count.
-
-# +
 context.query().group_by("region", "category").agg(dp.len(signed=True)).with_keys(
     keys
 ).summarize(alpha=0.05)
 # -
 
 # To compare the two options fairly, we release the same table many times with each.
-# In a real analysis you would release it once. Repeating it here lets us see
+# In a real analysis you would release it once, and never report the un-noised values. Repeating it here lets us see
 # the average behavior of each option, which is what bias is about.
 #
 # `query.resolve()` turns a query into an OpenDP measurement,
@@ -332,7 +327,4 @@ plt.show()
 #   instead of asking readers to add up clipped cells.
 #   Those queries need their own share of the privacy budget, so plan for them when you create the Context
 #   (for example with `split_evenly_over=2`). The released totals also won't exactly equal the sum of the released cells.
-#
-# In OpenDP 0.16, leaving out `signed` still clips, with a warning.
-# A future release will make `signed=True` the default,
-# so it's a good idea to say which one you want now.
+# - Whichever you choose, always pass `signed` explicitly, so your code means the same thing in every OpenDP version.
