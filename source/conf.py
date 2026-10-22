@@ -47,15 +47,16 @@ nbsphinx_custom_formats = {
 }
 
 nbsphinx_prolog = r"""
-{% set docname = 'main/source/' + env.doc2path(env.docname, base=False)|string %}
+{% set github_url = 'https://github.com/opendp/opendp-cookbook/blob/main/source/' + env.doc2path(env.docname, base=False)|string %}
+{% set ipynb_url = env.docname.split('/')|last|e + '.ipynb' %}
 
 .. raw:: html
 
     <div class="admonition note">
         Edit the
-        <a href="https://github.com/opendp/opendp-cookbook/blob/{{ docname|e }}">python source</a>
+        <a href="{{ github_url|e }}">python source</a>
         for this recipe, or download the generated
-        <a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" download>.ipynb notebook</a>.
+        <a href="{{ ipynb_url|e }}" download>.ipynb notebook</a>.
     </div>
 """
 
