@@ -1,4 +1,6 @@
-<svg width="820" height="250" xmlns="http://www.w3.org/2000/svg">
+<svg width="1000" height="250" xmlns="http://www.w3.org/2000/svg">
+    <!-- Wider than strictly necessary because the exact font depends
+    on the browser, but we don't want the logo to be truncated. -->
     <image
         x="0"
         y="0"
@@ -10,5 +12,5 @@
         font-size="110px"
         font-family="cursive"
         fill="#633"
-    >Cookbook!</text>
+    >Cookbook</text>
 </svg>
