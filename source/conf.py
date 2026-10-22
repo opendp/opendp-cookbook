@@ -36,6 +36,7 @@ html_theme_options = {
     "github_url": "https://github.com/opendp/opendp-cookbook",
     "announcement": "https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html",
 }
+html_show_sourcelink = False
 
 
 # -- Options for nbsphinx output --
