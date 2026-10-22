@@ -46,6 +46,19 @@ nbsphinx_custom_formats = {
     ".py": ["jupytext.reads", {"fmt": "py:light"}],
 }
 
+nbsphinx_prolog = r"""
+{% set docname = 'main/source/' + env.doc2path(env.docname, base=False)|string %}
+
+.. raw:: html
+
+    <div class="admonition note">
+        Edit the
+        <a href="https://github.com/opendp/opendp-cookbook/blob/{{ docname|e }}">python source</a>
+        for this recipe, or download the generated
+        <a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" download>.ipynb notebook</a>.
+    </div>
+"""
+
 # -- Options for Myst-Parser --
 # https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 
