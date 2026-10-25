@@ -111,7 +111,7 @@ context.query().group_by("region", "category").agg(dp.len(signed=True)).with_key
 # -
 
 # To compare the two options fairly, we release the same table many times with each.
-# In a real analysis you would release it once, and never report the un-noised values. Repeating it here lets us see
+# In a real analysis you would release it once, and never release the un-noised values. Repeating it here lets us see
 # the average behavior of each option, which is what bias is about.
 #
 # `query.resolve()` turns a query into an OpenDP measurement,

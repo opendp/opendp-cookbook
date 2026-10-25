@@ -2,6 +2,9 @@
 #
 # Using higher-level APIs helps to ensure the correctness of your analysis,
 # but sometimes you just want to add noise.
+#
+# The Laplace and Gaussian mechanisms below are "contrib" features.
+# Any features that have not completed the vetting process are marked as "contrib", and require explicit opt-in.
 
 # +
 import opendp.prelude as dp
