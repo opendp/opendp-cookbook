@@ -150,6 +150,7 @@ def execute_subsetsums_noise(sigma, predicates):
 
 def execute_subsetsums_sample(t, predicates):
     """Return an estimate for subset sums on the target column, based on a sample of size `t`."""
+    # sample with numpy's global random state, as pandas did, so seeded runs are reproducible
     sub_data = data[np.random.choice(len(data), size=t, replace=False)]
     mask = np.stack([pred(sub_data) for pred in predicates], axis=1)
     return sub_data[target].to_numpy() @ mask * len(data) / t
