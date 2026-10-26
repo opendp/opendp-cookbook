@@ -9,10 +9,10 @@
 
 # +
 import numpy as np
-import pandas as pd
+import polars as pl
 
 # a dataframe containing the data to be attacked
-data: pd.DataFrame = pd.read_csv(
+data: pl.DataFrame = pl.read_csv(
     "https://raw.githubusercontent.com/opendp/cs208/main/spring2022/data/FultonPUMS5reconstruction.csv"
 )
 
@@ -49,7 +49,9 @@ def execute_subsetsums_exact(predicates):
 
     :param predicates: a list of predicates on the public variables
     :returns a 1-d np.ndarray of exact answers to the subset sum queries"""
-    return data[target].values @ np.stack([pred(data) for pred in predicates], axis=1)
+    return data[target].to_numpy() @ np.stack(
+        [pred(data) for pred in predicates], axis=1
+    )
 
 
 # Here's a quick example of how an analyst might use this query interface:
@@ -57,8 +59,8 @@ def execute_subsetsums_exact(predicates):
 
 execute_subsetsums_exact(
     [
-        lambda data: data["sex"] == 1,  # "is-female" predicate
-        lambda data: data["married"] == 1,  # "is-married" predicate
+        lambda data: (data["sex"] == 1).to_numpy(),  # "is-female" predicate
+        lambda data: (data["married"] == 1).to_numpy(),  # "is-married" predicate
     ]
 )
 
@@ -94,7 +96,7 @@ def make_random_predicate():
     desc = np.random.randint(prime, size=len(pub))
     # this predicate maps data into a 1-d ndarray of booleans
     #   (where `@` is the dot product and `%` modulus)
-    return lambda data: ((data[pub].values @ desc) % prime % 2).astype(bool)
+    return lambda data: ((data.select(pub).to_numpy() @ desc) % prime % 2).astype(bool)
 
 
 # Example usage
@@ -122,7 +124,7 @@ reconstructed_target = reconstruction_attack(
 )
 
 # complete reconstruction of the target column
-assert np.array_equal(reconstructed_target, data[target])
+assert np.array_equal(reconstructed_target, data[target].to_numpy())
 # -
 
 
@@ -148,9 +150,9 @@ def execute_subsetsums_noise(sigma, predicates):
 
 def execute_subsetsums_sample(t, predicates):
     """Return an estimate for subset sums on the target column, based on a sample of size `t`."""
-    sub_data = data.sample(t)
+    sub_data = data[np.random.choice(len(data), size=t, replace=False)]
     mask = np.stack([pred(sub_data) for pred in predicates], axis=1)
-    return sub_data[target].values @ mask * len(data) / t
+    return sub_data[target].to_numpy() @ mask * len(data) / t
 
 
 # -
@@ -161,7 +163,7 @@ def execute_subsetsums_sample(t, predicates):
 
 # +
 def compute_accuracy_reconstruction(reconstructed):
-    return (reconstructed == data[target]).mean()
+    return (reconstructed == data[target].to_numpy()).mean()
 
 
 def compute_rmse_answers(answers):
@@ -245,10 +247,15 @@ def evaluate_all_performances(num_trials=10):
         for param in params:
             for _ in range(num_trials):
                 losses.append(evaluate_performance(interface_name, param))
-    return pd.DataFrame(losses)
+    return pl.DataFrame(losses)
 
 
-all_perf = evaluate_all_performances().groupby(["interface", "param"]).mean()
+all_perf = (
+    evaluate_all_performances()
+    .group_by("interface", "param")
+    .mean()
+    .sort("interface", "param")
+)
 # -
 
 
@@ -258,9 +265,8 @@ all_perf = evaluate_all_performances().groupby(["interface", "param"]).mean()
 # +
 import matplotlib.pyplot as plt
 
-for name, perf in all_perf.groupby("interface"):
-    perf.reset_index(inplace=True)
-    plt.plot(perf["param"], perf["reconstruction accuracy"], label=name)
+for name, perf in all_perf.partition_by("interface", as_dict=True).items():
+    plt.plot(perf["param"], perf["reconstruction accuracy"], label=name[0])
 
 plt.legend()
 plt.title("Performance comparison per query interface")
@@ -285,8 +291,8 @@ plt.show()
 # The next plot compares the reconstruction accuracy against the RMSE of the answers.
 
 # +
-for name, perf in all_perf.groupby("interface"):
-    plt.plot(perf["answer rmse"], perf["reconstruction accuracy"], label=name)
+for name, perf in all_perf.partition_by("interface", as_dict=True).items():
+    plt.plot(perf["answer rmse"], perf["reconstruction accuracy"], label=name[0])
 
 plt.legend()
 plt.title("Performance comparison per query interface")
@@ -299,9 +305,8 @@ plt.show()
 # Broadly speaking, the reconstruction accuracy and answer RMSE have an inverse relationship. As noted before, rounding exhibits strange behavior around the data mean.
 
 # +
-for name, perf in all_perf.groupby("interface"):
-    perf.reset_index(inplace=True)
-    plt.plot(perf["param"], perf["answer rmse"], label=name)
+for name, perf in all_perf.partition_by("interface", as_dict=True).items():
+    plt.plot(perf["param"], perf["answer rmse"], label=name[0])
 
 plt.legend()
 plt.title("Performance comparison per query interface")
@@ -340,7 +345,10 @@ for param in params:
         bounds=(1e-6, 100.0),
     )
 
-pd.Series(epsilons).plot(xlabel="parameter", ylabel="epsilon")
+plt.plot(list(epsilons.keys()), list(epsilons.values()))
+plt.xlabel("parameter")
+plt.ylabel("epsilon")
+plt.show()
 # -
 
 # This plot shows how quickly epsilon expenditure decreases as the noise scale increases. The x axis is shared with the plots above.

@@ -148,7 +148,7 @@ print(dp_target_income)
 
 
 # +
-import seaborn as sns
+import matplotlib.pyplot as plt
 
 m_target_income = query.resolve()
 data = pl.scan_csv(
@@ -159,8 +159,10 @@ data = pl.scan_csv(
 
 # get estimates of overall means
 dp_target_incomes = [m_target_income(data).collect().item() for _ in range(1_000)]
-ax = sns.histplot(dp_target_incomes, edgecolor="black", linewidth=1)
-ax.set(xlabel="Estimated Target Incomes")
+plt.hist(dp_target_incomes, bins="auto", edgecolor="black", linewidth=1)
+plt.xlabel("Estimated Target Incomes")
+plt.ylabel("Count")
+plt.show()
 # -
 
 # Notice how estimates of the estimates of the target's income vary wildly,

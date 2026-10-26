@@ -11,7 +11,7 @@
 import time
 
 import numpy as np
-import pandas as pd
+import polars as pl
 
 np.random.seed(123)
 # -
@@ -87,7 +87,7 @@ def membership_attack_fig_2(individual, answers, reference_samples, delta=0.05):
 
 
 # +
-population: pd.DataFrame = pd.read_csv(
+population: pl.DataFrame = pl.read_csv(
     "https://raw.githubusercontent.com/opendp/cs208/main/spring2022/data/FultonPUMS5sample100.csv"
 )
 
@@ -98,14 +98,19 @@ def make_boolean_projection(d_in, d_out=1):
     desc = np.random.randint(prime, size=(d_in, d_out))
     # this predicate maps data into a ndarray of booleans of size [n, d_out]
     #   (where `@` is the dot product and `%` modulus)
-    return lambda data: ((data.values @ desc) % prime % 2).astype(bool)
+    return lambda data: ((data.to_numpy() @ desc) % prime % 2).astype(bool)
 
 
-def draw(data: pd.DataFrame, sample_size: int):
+def draw(data: pl.DataFrame, sample_size: int):
     """Returns `sample_size` rows randomly from `data`, and the rest"""
     indices = np.arange(len(data))
     np.random.shuffle(indices)
-    return data.iloc[indices[:sample_size]], data.iloc[indices[sample_size:]]
+    return data[indices[:sample_size]], data[indices[sample_size:]]
+
+
+def sample(data: pl.DataFrame, n: int):
+    """Returns `n` rows drawn at random from `data`, using numpy's global random state."""
+    return data[np.random.choice(len(data), size=n, replace=False)]
 
 
 def execute_exact_query(data):
@@ -139,10 +144,10 @@ project = make_boolean_projection(len(population.columns), d_out=4000)
 answers = execute_exact_query(project(sequestered_data))
 
 # Attacker collects a reference sample from the population
-reference_samples = project(population.sample(1))
+reference_samples = project(sample(population, 1))
 
 # Attacker collects public info for Alice
-alice = project(sequestered_data.sample(1))[0]
+alice = project(sample(sequestered_data, 1))[0]
 
 membership_attack_fig_1(
     individual=alice, answers=answers, reference_samples=reference_samples, delta=0.05
@@ -154,7 +159,7 @@ membership_attack_fig_1(
 
 # +
 # Attacker collects public info for Anita
-anita = project(rest.sample(1))[0]
+anita = project(sample(rest, 1))[0]
 
 membership_attack_fig_1(
     individual=anita, answers=answers, reference_samples=reference_samples, delta=0.05
@@ -211,10 +216,10 @@ def simulate_attacks(
             answers = query(projection(sequestered_data))
 
             # collect a reference sample from the population
-            reference_samples = projection(rest.sample(reference_size))
+            reference_samples = projection(sample(rest, reference_size))
 
             # collect an individual from the attacked dataset
-            alice = projection(sequestered_data.sample(1))[0]
+            alice = projection(sample(sequestered_data, 1))[0]
             tp += membership_attack(
                 individual=alice,
                 answers=answers,
@@ -223,7 +228,7 @@ def simulate_attacks(
             )
 
             # collect an individual from the population
-            anita = projection(rest.sample(1))[0]
+            anita = projection(sample(rest, 1))[0]
             fp += membership_attack(
                 individual=anita,
                 answers=answers,
