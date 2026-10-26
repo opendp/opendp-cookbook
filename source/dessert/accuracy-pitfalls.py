@@ -25,182 +25,228 @@
 #
 # #### What is $D$?
 #
-# OpenDP allows for analysis of data with an unknown number of rows by resizing the data to ensure consistency with an
-# estimated size
-# (see the [unknown dataset size notebook](https://docs.opendp.org/en/stable/api/user-guide/transformations/preprocess-resize.html)
-# for more details). Accuracy guarantees are always relative to the preprocessed data $\tilde{D}$ and operations such as
-# imputation and clipping are not factored into the accuracy.
+# Before any noise is added, OpenDP preprocesses the data.
+# For example, `.dp.sum()` and `.dp.mean()` clip each value to the bounds you give them,
+# and you might fill missing values with `fill_null` before that.
+# Call the preprocessed data $\tilde{D}$.
+# Accuracy guarantees are always relative to $\tilde{D}$:
+# clipping and imputation are not factored into the accuracy.
 #
 # #### Synopsis
 #
-# Say an analyst releases $\phi_{dp}(D)$ and gets an accuracy guarantee of $a$ at accuracy-level $\alpha$ using the accuracy utilities described below.
-# $D$ is a dataset of unknown size drawn from population $P$ and will be resized to $\tilde{D}$.
+# Say an analyst releases $\phi_{dp}(D)$ and gets an accuracy guarantee of $a$ at accuracy-level $\alpha$.
+# $D$ is drawn from population $P$ and is preprocessed into $\tilde{D}$.
 # This suggests that over infinite runs of this procedure,
 #
 # - $\phi_{dp}(D) \in [\phi(\tilde{D}) - a, \phi(\tilde{D}) + a]$ with probability $1 - \alpha$
 # - It is likely that $\phi_{dp}(D) \in [\phi(D) - a, \phi(D) + a]$ with probability $\approx 1 - \alpha$, though we
-# cannot make any guarantee. For many cases (e.g. resizing the data based on $n$ obtained from a differentially private
-# count and reasonable bounds on the data elements), this is likely to be approximately true. In the next section, we will
-# explore some examples of cases where this statement holds to varying extents.
+# cannot make any guarantee. If preprocessing changes little (for example, the bounds contain almost all of the data),
+# this is likely to be approximately true. If preprocessing changes a lot, it can be badly wrong.
+# In the next sections, we will explore an example of each.
+# (For a mean, the interval we build below is not symmetric around the release, but the same reasoning applies.)
 #
-# - We cannot directly make statements about the relationship uncertainty of $\phi_{dp}(D)$ relative to $\phi(P)$.
+# - We cannot directly make statements about the uncertainty of $\phi_{dp}(D)$ relative to $\phi(P)$.
 #
-# ### Accuracy Guarantees In Practice
+# ### Setup
 #
-# We now move to some empirical evaluations of how well our accuracy guarantees translate from $\phi(\tilde{D})$ to
-# $\phi(D)$. We first consider the case where we actually know the size of the underlying data and are able to set
-# plausible lower/upper bounds on `age`.
+# We use the California PUMS sample that ships with OpenDP: 1,000 people, and we look at their ages.
+# We also compute the exact mean age.
+# It is not differentially private; we use it only to check the DP releases against the truth.
 
 # +
+import matplotlib.pyplot as plt
 import numpy as np
 import opendp.prelude as dp
-import pandas as pd
+import polars as pl
 
 dp.enable_features("contrib")
 
-var_names = ["age", "sex", "educ", "race", "income", "married", "pid"]
-D = pd.read_csv(dp.examples.get_california_pums_path(), names=var_names)
-age = D.age
-D_mean_age = np.mean(age)
+var_names = ["age", "sex", "educ", "race", "income", "married"]
+data = pl.scan_csv(
+    dp.examples.get_california_pums_path(),
+    has_header=False,
+    new_columns=var_names,
+    schema_overrides={"age": pl.Float64, "income": pl.Float64},
+)
 
-# This will provide the data that will be passed to the aggregator
-data = dp.examples.get_california_pums_path().read_text()
+ages = data.select("age").collect()["age"]
+D_mean_age = ages.mean()
+print(f"{len(ages)} people, ages {ages.min():.0f} to {ages.max():.0f}")
+print(f"true mean age: {D_mean_age:.3f}")
+# -
 
-# establish extra information for this simulation
-age_bounds = (0.0, 100.0)
-n_sims = 100
-epsilon = 1.0
+# ### Pitfall: the accuracy of a mean is not reported directly
+#
+# The natural way to release a mean is `.dp.mean()`.
+# It needs an upper bound on the number of rows in the data, which we give as a margin.
+# OpenDP uses it to bound floating-point error in the sum.
+# It is a public claim about the data: if it is false, the privacy guarantee no longer holds.
+# Unlike the older `resize` transformation, it never adds or drops rows.
+
+# +
+context = dp.Context.compositor(
+    data=data,
+    privacy_unit=dp.unit_of(contributions=1),
+    privacy_loss=dp.loss_of(epsilon=1.0),
+    split_evenly_over=1,
+    margins=[dp.polars.Margin(max_length=1000)],
+)
+
+context.query().select(pl.col("age").dp.mean((0.0, 100.0))).summarize(alpha=0.05)
+# -
+
+# There are two rows, and neither of them is the mean.
+# `.dp.mean()` releases a noisy sum and a noisy count, splits the privacy budget between them,
+# and divides one by the other.
+# The summary gives the accuracy of each part:
+# the sum is within about 600 of the true sum, and the count is within about 6 of the true count,
+# each with probability 95%.
+# The sum is in person-years, so reading the 600 as the accuracy of the mean would be off by hundreds of times.
+#
+# To get an interval for the mean, we release the two parts ourselves, which costs the same privacy budget.
+# Our lower bound is 0, so every clipped value is at least 0.
+# So if the noisy sum $S$ is within $a_S$ of the true sum, and the noisy count $N$ is within $a_N$ of the true count,
+# then the true mean of $\tilde{D}$ lies between
+# $$ \frac{\max(0, S - a_S)}{N + a_N} \quad \text{and} \quad \frac{S + a_S}{N - a_N}. $$
+# This needs $N > a_N$; otherwise the upper end is unbounded, and we fall back to the upper clipping bound.
+# Since the clipped mean always lies within the clipping bounds, we also cap the interval there.
+# We ask for each part at $\alpha / 2$, so that both hold together with probability at least $1 - \alpha$.
+# We pass `signed=True` so the noisy count is never clamped at zero; with 1,000 rows it makes no practical difference,
+# but it keeps the count unbiased and the code clear in every OpenDP version.
+
+# +
 alpha = 0.05
 
-D_tilde_mean_age = np.mean(np.clip(D.age, age_bounds[0], age_bounds[1]))
-impute_constant = 50.0
 
-
-def make_mean_aggregator(data_size):
-    return (
-        # Convert data into a dataframe of string columns
-        dp.t.make_split_dataframe(separator=",", col_names=var_names)
-        >>
-        # Selects a column of df, Vec<str>
-        dp.t.make_select_column(key="age", TOA=str)
-        >>
-        # Cast the column as Vec<float>
-        dp.t.then_cast(TOA=float)
-        >>
-        # Impute null values
-        dp.t.then_impute_constant(impute_constant)
-        >>
-        # Clamp age values
-        dp.t.then_clamp(bounds=age_bounds)
-        >>
-        # Resize the dataset to length `data_size`.
-        #     If there are fewer than `data_size` rows in the data, fill with a constant.
-        #     If there are more than `data_size` rows in the data, only keep `data_size` rows
-        dp.t.then_resize(size=data_size, constant=impute_constant)
-        >> dp.t.then_mean()
+def mean_interval_query(bounds):
+    return context.query().select(
+        pl.col("age").dp.sum(bounds).alias("sum"),
+        dp.len(signed=True),
     )
 
 
+query = mean_interval_query((0.0, 100.0))
+query.summarize(alpha=alpha / 2)
 # -
+
+# The scales match the two rows from `.dp.mean()`, so this is the same release with the parts kept separate.
+# The accuracies are larger because we asked for $\alpha / 2$ instead of $\alpha$,
+# and the count is labelled "Frame Length" because `dp.len()` counts the rows of the whole frame.
+#
+# ### Example 1: bounds that contain all the data
+#
+# To see how often the interval contains the truth, we release it many times.
+# In a real analysis you would release it once.
+# As in the [signed counts recipe](signed-counts.py), `query.resolve()` gives a measurement we can call repeatedly.
+# Each call costs another $\epsilon = 1$, and calling it directly skips the Context's budget check.
+# The 400 releases below (200 for each example) add up to $\epsilon = 400$, and nothing stops or records that.
+# Only do this for demonstrations like this one, never with data you need to protect.
 
 # +
-data_size = 1_000
+n_repeats = 200
 
-mean_aggregator = make_mean_aggregator(data_size)
 
-scale = dp.binary_search_param(
-    lambda s: mean_aggregator >> dp.m.then_laplace(s), 1, epsilon
-)
-
-measurement = mean_aggregator >> dp.m.then_laplace(scale)
-
-releases = [measurement(data) for _ in range(n_sims)]
-
-accuracy = dp.laplacian_scale_to_accuracy(scale, alpha)
-
-print(
-    "Accuracy interval (with accuracy value {}) contains the true mean on D_tilde with probability {}".format(
-        round(accuracy, 4),
-        np.mean(
-            [
-                (D_tilde_mean_age >= val - accuracy)
-                & (D_tilde_mean_age <= val + accuracy)
-                for val in releases
-            ]
-        ),
+def release_intervals(bounds):
+    query = mean_interval_query(bounds)
+    accuracies = query.summarize(alpha=alpha / 2)["accuracy"]
+    a_sum, a_len = accuracies[0], accuracies[1]
+    measurement = query.resolve()
+    releases = pl.concat([measurement(data).collect() for _ in range(n_repeats)])
+    S = releases["sum"].to_numpy()
+    N = releases["len"].cast(pl.Float64).to_numpy()
+    lower = np.maximum(bounds[0], (S - a_sum) / (N + a_len))
+    upper = np.where(
+        N > a_len,
+        np.minimum(bounds[1], (S + a_sum) / np.maximum(N - a_len, 1)),
+        bounds[1],
     )
-)
+    return S / N, lower, upper
 
+
+def coverage(lower, upper, target):
+    return np.mean((lower <= target) & (target <= upper))
+
+
+wide_bounds = (0.0, 100.0)
+wide_mean, wide_lower, wide_upper = release_intervals(wide_bounds)
+D_tilde_wide = ages.clip(*wide_bounds).mean()
+
+print(f"average interval width: {np.mean(wide_upper - wide_lower):.2f} years")
 print(
-    "Accuracy interval (with accuracy value {}) contains the true mean on D with probability {}".format(
-        round(accuracy, 4),
-        np.mean(
-            [
-                (D_mean_age >= val - accuracy) & (D_mean_age <= val + accuracy)
-                for val in releases
-            ]
-        ),
-    )
+    f"contains the mean of D_tilde: {coverage(wide_lower, wide_upper, D_tilde_wide):.0%}"
+)
+print(
+    f"contains the mean of D:       {coverage(wide_lower, wide_upper, D_mean_age):.0%}"
 )
 # -
 
-# This performance is as expected. $D$ and $\tilde{D}$ are actually the exact same data (the maximum age in the raw data
-# is 93, so our clamp to $[0, 100]$ does not change any values, and we know the correct $n$), so our theoretical
-# guarantees on $\tilde{D}$ map exactly to guarantees on $D$.
+# The oldest person is 93, so clipping to $[0, 100]$ changes nothing, and $D$ and $\tilde{D}$ are the same data.
+# The guarantee on $\tilde{D}$ carries over exactly to $D$.
+# The coverage is above 95% because the interval is conservative:
+# it assumes the sum and the count are both off by their full accuracy, in the worst directions, at once.
 #
-# We now move to a scenario that is still realistic, but where the performance does not translate quite as well. In this
-# case, we imagine that the analyst believes the data to be of size 1050 and uses the default imputation within resize
-# so that the extra 50 elements are replaced with a constant.
+# ### Example 2: bounds that are too narrow
 #
-# Note that our diagnostic testing of $\tilde{D}$ in the code above is not trivial in this case. In the first example, we
-# knew that clamp/resize did not change the underlying data, so we could predict exactly the data on which the DP mean
-# would actually be calculated. This will not be true for the following examples, so we will simulate finding the true
-# underlying mean by releasing an extra DP mean with very high epsilon.
+# Now suppose the analyst guesses the bounds $[0, 60]$.
+# About a fifth of the people are older than 60, and their ages are clipped down to 60 before any noise is added.
+# The narrower bounds also mean less noise, so the interval gets tighter.
 
 # +
-# This estimate is larger than the true size of 1000, so we will impute 50 values using the impute constant
-data_size = 1_050
+narrow_bounds = (0.0, 60.0)
+narrow_mean, narrow_lower, narrow_upper = release_intervals(narrow_bounds)
+D_tilde_narrow = ages.clip(*narrow_bounds).mean()
 
-mean_aggregator = make_mean_aggregator(data_size)
-
-# This value contains the true mean of the data after resizing and imputation
-D_tilde_mean = mean_aggregator(data)
-
-scale = dp.binary_search_param(
-    lambda s: mean_aggregator >> dp.m.then_laplace(s), 1, epsilon
-)
-
-measurement = mean_aggregator >> dp.m.then_laplace(scale)
-
-releases = [measurement(data) for _ in range(n_sims)]
-
-accuracy = dp.laplacian_scale_to_accuracy(scale, alpha)
-
+print(f"share of people older than 60: {(ages > 60).mean():.0%}")
+print(f"mean of D_tilde: {D_tilde_narrow:.3f}, mean of D: {D_mean_age:.3f}")
+print(f"average interval width: {np.mean(narrow_upper - narrow_lower):.2f} years")
 print(
-    "Accuracy interval (with accuracy value {}) contains the true mean on D_tilde with probability {}".format(
-        round(accuracy, 4),
-        np.mean(
-            [
-                (D_tilde_mean >= dp_mean - accuracy)
-                & (D_tilde_mean <= dp_mean + accuracy)
-                for dp_mean in releases
-            ]
-        ),
-    )
+    f"contains the mean of D_tilde: {coverage(narrow_lower, narrow_upper, D_tilde_narrow):.0%}"
 )
-
 print(
-    "Accuracy interval (with accuracy value {}) contains the true mean on D with probability {}".format(
-        round(accuracy, 4),
-        np.mean(
-            [
-                (D_mean_age >= dp_mean - accuracy) & (D_mean_age <= dp_mean + accuracy)
-                for dp_mean in releases
-            ]
-        ),
-    )
+    f"contains the mean of D:       {coverage(narrow_lower, narrow_upper, D_mean_age):.0%}"
 )
 # -
 
-# The accuracy guarantee still holds on $\tilde{D}$ (as it should), but we now see much worse performance relative to the
-# true underlying data $D$.
+# The guarantee still holds for $\tilde{D}$, as it must.
+# But the clipped mean is more than two years below the true mean, and the interval is under two years wide,
+# so it almost never contains the true mean of $D$.
+# Here are the first 50 intervals from each example:
+
+# +
+n_show = 50
+fig, axes = plt.subplots(1, 2, figsize=(10, 5), sharex=True, sharey=True)
+examples = [
+    (axes[0], wide_bounds, wide_mean, wide_lower, wide_upper),
+    (axes[1], narrow_bounds, narrow_mean, narrow_lower, narrow_upper),
+]
+for ax, bounds, mean, lower, upper in examples:
+    hits = (lower <= D_mean_age) & (D_mean_age <= upper)
+    for i in range(n_show):
+        color = "tab:blue" if hits[i] else "tab:red"
+        ax.plot([lower[i], upper[i]], [i, i], color=color)
+        ax.plot(mean[i], i, "o", color=color, markersize=3)
+    ax.axvline(D_mean_age, color="black", label="mean of D")
+    ax.axvline(
+        ages.clip(*bounds).mean(), color="gray", linestyle="--", label="mean of D_tilde"
+    )
+    ax.set_title(f"bounds {bounds}")
+    ax.set_xlabel("age")
+axes[0].set_ylabel("repeat")
+axes[1].legend(loc="lower right")
+fig.suptitle("95% intervals for the mean age (red: misses the mean of D)")
+plt.show()
+# -
+
+# ### Takeaways
+#
+# - An accuracy guarantee is about the preprocessed data $\tilde{D}$.
+#   It carries over to the raw data only if preprocessing changed little.
+# - Narrow bounds reduce the noise, and so make the interval tighter, but they can move the target.
+#   A tight interval around the wrong value can look more trustworthy than a wide one around the right value.
+#   Choose bounds from public knowledge about what values are possible, not from what makes the interval small.
+# - Clipping is not always a mistake. It trades bias for less noise, and for heavy-tailed data such as income
+#   it can be a good trade. Just remember that the accuracy then describes the clipped value.
+#   To see how much was clipped, you can spend a little budget on a DP count of the values at or above the upper bound.
+# - `.dp.mean()` reports the accuracy of its sum and its count, not of the mean.
+#   To get an interval for the mean, release the sum and the count and combine their accuracies,
+#   as we did above.
