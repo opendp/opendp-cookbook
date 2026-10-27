@@ -63,12 +63,10 @@ import polars as pl
 
 dp.enable_features("contrib")
 
-var_names = ["age", "sex", "educ", "race", "income", "married"]
 data = pl.scan_csv(
     dp.examples.get_california_pums_path(),
     has_header=False,
-    new_columns=var_names,
-    schema_overrides={"age": pl.Float64, "income": pl.Float64},
+    new_columns=["age", "sex", "educ", "race", "income", "married"],
 )
 
 ages = data.select("age").collect()["age"]
@@ -81,9 +79,10 @@ print(f"true mean age: {D_mean_age:.3f}")
 #
 # The natural way to release a mean is `.dp.mean()`.
 # It needs an upper bound on the number of rows in the data, which we give as a margin.
-# OpenDP uses it to bound floating-point error in the sum.
-# It must come from public knowledge (here, the published sample size), not from looking at the data:
-# if it is false, the privacy guarantee no longer holds.
+# OpenDP uses it to rule out overflow in the sum.
+# It must come from public knowledge (here, the published sample size), not from looking at the data.
+# If the length did come from looking at the private data,
+# then the privacy guarantee would no longer hold.
 
 # +
 context = dp.Context.compositor(
@@ -119,9 +118,6 @@ context.query().select(pl.col("age").dp.mean((0.0, 100.0))).summarize(alpha=0.05
 # Since the clipped mean always lies within the clipping bounds, we also cap the interval there.
 # We ask for each part at $\alpha / 2$, so that both hold together with probability at least $1 - \alpha$.
 # The interval is not symmetric around $S / N$, but it plays the same role as $\phi_{dp}(D) \pm a$ above.
-#
-# We pass `signed` explicitly because leaving it out gives a warning in OpenDP 0.16: the default is changing.
-# With 1,000 rows the noisy count never gets near zero, so either setting gives the same result here.
 
 # +
 alpha = 0.05
@@ -262,7 +258,7 @@ plt.show()
 # - Narrow bounds reduce the noise, and so make the interval tighter, but they can move the target.
 #   A tight interval around the wrong value can look more trustworthy than a wide one around the right value.
 #   Choose bounds from public knowledge about what values are possible, not from what makes the interval small.
-# - Clipping is not always a mistake. It trades bias for less noise, and for heavy-tailed data such as income
+# - Tight clipping is not always a mistake. It trades bias for less noise, and for heavy-tailed data such as income
 #   it can be a good trade. Just remember that the accuracy then describes the clipped value.
 #   To see how much was clipped, you can spend a little budget on a DP count of the values at or above the upper bound.
 # - `.dp.mean()` reports the accuracy of its sum and its count, not of the mean.
