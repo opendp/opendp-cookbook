@@ -36,6 +36,7 @@ html_theme_options = {
     "github_url": "https://github.com/opendp/opendp-cookbook",
     "announcement": "https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html",
 }
+html_show_sourcelink = False
 
 
 # -- Options for nbsphinx output --
@@ -45,6 +46,20 @@ nbsphinx_custom_formats = {
     # TODO: Use dp-wizard-templates for more control.
     ".py": ["jupytext.reads", {"fmt": "py:light"}],
 }
+
+nbsphinx_prolog = r"""
+{% set github_url = 'https://github.com/opendp/opendp-cookbook/blob/main/source/' + env.doc2path(env.docname, base=False)|string %}
+{% set ipynb_url = env.docname.split('/')|last|e + '.ipynb' %}
+
+.. raw:: html
+
+    <div class="admonition note">
+        Edit the
+        <a href="{{ github_url|e }}">python source</a>
+        for this recipe, or download the generated
+        <a href="{{ ipynb_url|e }}" download>.ipynb notebook</a>.
+    </div>
+"""
 
 # -- Options for Myst-Parser --
 # https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
