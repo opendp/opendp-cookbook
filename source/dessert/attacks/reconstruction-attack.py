@@ -167,8 +167,10 @@ def compute_accuracy_reconstruction(reconstructed):
     return (reconstructed == data[target].to_numpy()).mean()
 
 
-def compute_rmse_answers(answers):
-    return np.sqrt(np.mean((answers - exact_answers) ** 2))
+def compute_rmse_answers(answers, predicates):
+    """RMSE of `answers` against the exact answers to the same `predicates`."""
+    exact = execute_subsetsums_exact(predicates)
+    return np.sqrt(np.mean((answers - exact) ** 2))
 
 
 interfaces = {
@@ -185,7 +187,7 @@ def evaluate_performance(interface_name, param):
     return {
         "interface": interface_name,
         "param": param,
-        "answer rmse": compute_rmse_answers(answers),
+        "answer rmse": compute_rmse_answers(answers, predicates_temp),
         "reconstruction accuracy": compute_accuracy_reconstruction(reconstruction),
     }
 
