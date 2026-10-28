@@ -57,6 +57,10 @@ for age in thresholds:
 # The running total drifts upward: 0.30000000000000004 after three queries, 0.9000000000000005 after nine.
 # After ten it would be 1.0000000000000007, which is more than 1, so OpenDP refuses the last query.
 #
+# A refused query also closes the Context for good.
+# After it, OpenDP answers no more queries, not even small ones, and it no longer reports the budget.
+# So it is not enough to catch the error and try a smaller query: you have to plan the budget so that no query is refused.
+#
 # ## Why it happens
 #
 # Computers store numbers like 0.1 in binary, and most decimal fractions have no exact binary form.
@@ -98,32 +102,48 @@ print("all", len(counts), "queries answered")
 # -
 
 # Each query gets 0.09999999999999998 instead of 0.1.
-# That shrinks each part by about 2 parts in $10^{16}$, so the noise is the same for any practical purpose.
+# That shrinks each part by about 3 parts in $10^{16}$, so the noise is the same for any practical purpose.
 #
 # ## Fix 2: spend what is left on the last query
 #
 # If you decide on queries as you go, you can't split in advance.
-# Instead, give the last query whatever budget remains, as reported by the Context:
+# Instead, give the last query whatever budget remains.
+#
+# Be careful: `context.remaining_privacy_loss()` subtracts with ordinary Python arithmetic,
+# which rounds to the nearest double. The result can be a hair too large,
+# and then the last query is refused. For example, after spending 0.07 and 0.03,
+# it reports 0.9 remaining, but OpenDP adds 0.1 + 0.9 to more than 1.
+# So we check the remainder with exact fractions, and step it down to the next smaller double if it is too large:
 
 # +
+import math
+
+
+def remaining_rounded_down(context):
+    used = context.current_privacy_loss()
+    remaining = context.remaining_privacy_loss()
+    if Fraction(used) + Fraction(remaining) > Fraction(context.d_out):
+        remaining = math.nextafter(remaining, 0)
+    return remaining
+
+
 context = dp.Context.compositor(
     data=data,
     privacy_unit=dp.unit_of(contributions=1),
     privacy_loss=dp.loss_of(epsilon=1.0),
 )
 
-*first, last = thresholds
-for age in first:
-    count_at_least(context, age, epsilon=0.1)
+count_at_least(context, 20, epsilon=0.07)
+count_at_least(context, 25, epsilon=0.03)
 
-remaining = context.remaining_privacy_loss()
-print("remaining budget:", remaining)
-count_at_least(context, last, epsilon=remaining)
+print("remaining_privacy_loss():", context.remaining_privacy_loss())
+remaining = remaining_rounded_down(context)
+print("rounded down:            ", remaining)
+count_at_least(context, 30, epsilon=remaining)
 print("privacy loss after the last query:", context.current_privacy_loss())
 # -
 
-# Ask for the remaining budget before the last query.
-# Once the budget is used up, OpenDP will not report it any more.
+# This works because the budget is itself a double: if the exact sum is at most the budget, rounding it up cannot go past it.
 #
 # ## Fix 3: search for the largest part that fits
 #
@@ -188,6 +208,7 @@ for name, d_mids in splits.items():
     )
 # -
 
+# Three thirds fit here only by chance, because the roundings happened to cancel.
 # You can't tell in advance which splits are safe, so it is better not to rely on luck.
 #
 # ## Takeaways
@@ -195,6 +216,7 @@ for name, d_mids in splits.items():
 # - OpenDP rounds its privacy accounting up, so that the reported loss is never smaller than the real loss.
 #   The price is that a plan that adds up exactly on paper can go over budget by a tiny amount.
 # - If you know how many queries you will run, use `split_evenly_over` or `split_by_weights`.
-# - If you choose queries as you go, give the last query `context.remaining_privacy_loss()`.
+# - If you choose queries as you go, give the last query the remaining budget, rounded down.
+# - A refused query closes the Context, so plan the budget instead of catching the error.
 # - When you build compositions by hand, use `dp.binary_search_param` to find the largest part that fits.
 # - Each fix gives up less than $10^{-15}$ of the budget, which makes no practical difference to the noise.
