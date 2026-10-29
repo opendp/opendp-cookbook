@@ -133,7 +133,9 @@ for k in [-1074, -50, -20, -10, -5]:
     gaussian = dp.m.make_gaussian(
         sized_float_domain, dp.l2_distance(T=float), scale=1.0, k=k
     )
-    samples, milliseconds = best_time_ms(lambda: gaussian([0.0] * n_samples))
+    samples, milliseconds = best_time_ms(
+        lambda gaussian=gaussian: gaussian([0.0] * n_samples)
+    )
     print(
         f"{k:>6} {milliseconds:>6.1f} ms {gaussian.map(1.0):>20.15f} {len(set(samples)):>16}"
     )
