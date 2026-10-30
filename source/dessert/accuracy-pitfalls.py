@@ -67,6 +67,8 @@ data = pl.scan_csv(
     dp.examples.get_california_pums_path(),
     has_header=False,
     new_columns=["age", "sex", "educ", "race", "income", "married"],
+    # Some incomes are written like "1e+05", so they can't be read as integers.
+    schema_overrides={"income": pl.Float64},
 )
 
 ages = data.select("age").collect()["age"]

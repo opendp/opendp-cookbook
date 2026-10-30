@@ -165,8 +165,7 @@ plt.ylabel("Count")
 plt.show()
 # -
 
-# Notice how estimates of the estimates of the target's income vary wildly,
-# but the answers are much more concentrated around the true income.
+# Notice how the estimates of the target's income vary wildly around their true income, which is zero.
 # The adversary, only ever seeing one of these simulated releases,
 # will have practically no better knowledge of the target's income than they did before,
 # even when the mechanism happens to release zero.
