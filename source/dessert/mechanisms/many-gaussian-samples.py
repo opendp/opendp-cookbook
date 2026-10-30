@@ -144,6 +144,54 @@ for k in [-1074, -50, -20, -10, -5]:
 # With a very coarse grid such as $k = -5$, the cost rises sharply, and the noise takes few distinct values.
 # The increase also grows with the vector length, so check `map` for your own size.
 #
+# ## NumPy arrays in and out
+#
+# So far we passed Python lists, and got Python lists back.
+# The vector mechanism also accepts a NumPy array.
+# To get a NumPy array back, chain the mechanism with `dp.as_array()`:
+
+# +
+array_gaussian = (
+    dp.m.make_gaussian(sized_float_domain, dp.l2_distance(T=float), scale=1.0, k=-50)
+    >> dp.as_array()
+)
+
+array_samples = array_gaussian(np.zeros(n_samples))
+print(type(array_samples), array_samples.dtype, array_samples.shape)
+# -
+
+# This skips the Python list on both sides: the array goes straight into the library, and the samples come straight back as an array.
+# To see what that saves, we can time the conversion alone.
+# A mechanism with `scale=0.0` adds no noise, so it is **not private**, and we use it here only for timing.
+# We use a longer vector, because the difference grows with the length:
+
+# +
+n_long = 100_000
+long_float_domain = dp.vector_domain(dp.atom_domain(T=float, nan=False), size=n_long)
+long_list, long_array = [0.0] * n_long, np.zeros(n_long)
+
+
+def list_and_array_ms(scale):
+    """Times one call with a list in and out, and one with an array in and out."""
+    gaussian = dp.m.make_gaussian(
+        long_float_domain, dp.l2_distance(T=float), scale=scale, k=-50
+    )
+    array_gaussian = gaussian >> dp.as_array()
+    _, list_ms = best_time_ms(lambda: gaussian(long_list))
+    _, array_ms = best_time_ms(lambda: array_gaussian(long_array))
+    return list_ms, array_ms
+
+
+for name, scale in [("conversion only (no noise)", 0.0), ("with noise", 1.0)]:
+    list_ms, array_ms = list_and_array_ms(scale)
+    print(f"{name:>26}: lists {list_ms:6.1f} ms, arrays {array_ms:6.1f} ms")
+# -
+
+# Arrays make the conversion several times faster.
+# But drawing Gaussian noise takes much longer than converting the data,
+# so with noise the saving is only a small part of the total.
+# Use `dp.as_array()` when you want an array anyway, or when your data is already in one.
+#
 # ## Takeaways
 #
 # - To draw many samples, use a vector domain and one call, not a Python loop.
@@ -152,3 +200,5 @@ for k in [-1074, -50, -20, -10, -5]:
 # - Integer inputs get discrete Gaussian noise directly. Float inputs are rounded to a grid of spacing $2^k$ first.
 # - The default grid is exact. A coarser grid (such as $k = -50$) is faster and costs slightly more privacy.
 #   For a vector, it also needs a known length.
+# - Pass a NumPy array, and chain with `dp.as_array()` to get one back. This avoids converting through Python lists,
+#   though for Gaussian noise the sampling itself takes most of the time.
