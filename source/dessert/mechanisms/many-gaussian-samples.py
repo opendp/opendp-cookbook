@@ -5,8 +5,6 @@
 # Calling a scalar mechanism in a Python loop works, but it is slow.
 # This recipe shows a faster way, and explains what OpenDP does when you ask for integer or float noise.
 #
-# It is based on [a discussion on the OpenDP repository](https://github.com/opendp/opendp/discussions/2135).
-#
 # ## One call instead of a loop
 #
 # Here is the slow way: a scalar mechanism, called once for each sample.
