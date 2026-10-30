@@ -5,7 +5,7 @@
 # This notebook makes use of the Public Use Microdata Sample (PUMS), obtained from the Census Bureau’s American Community Survey (ACS).
 # Attacks like the one demonstrated in this notebook motivate the use of statistical disclosure limitation techniques like differential privacy.
 #
-# We will be attempting to determine if each individual in the PUMS sample is a US citizen.s
+# We will be attempting to determine if each individual in the PUMS sample is a US citizen.
 
 # +
 import numpy as np
