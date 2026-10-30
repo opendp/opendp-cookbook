@@ -4,8 +4,6 @@
 # On paper that uses the budget exactly. In OpenDP, the tenth query is refused.
 # This recipe shows why, and three ways to plan a budget so that every query fits.
 #
-# The question first came up in [opendp/opendp#2131](https://github.com/opendp/opendp/issues/2131).
-#
 # ## The surprise
 #
 # We use the California PUMS sample and ask ten questions:
@@ -148,9 +146,8 @@ print("privacy loss after the last query:", context.current_privacy_loss())
 # ## Fix 3: search for the largest part that fits
 #
 # Splits can also go over budget when you build compositions yourself.
-# This is the case from the original issue: one part of a larger budget is $\epsilon = 1$,
-# and you split it into 0.1 and 0.9.
-# Here we use randomized response as the mechanism, as the issue did.
+# Say one part of a larger budget is $\epsilon = 1$, and you split it into 0.1 and 0.9.
+# Here we use randomized response as the mechanism.
 
 # +
 m_rr = dp.m.make_randomized_response_bool(prob=0.55)
