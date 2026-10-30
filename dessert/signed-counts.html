@@ -1,0 +1,892 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Signed Counts: Why Clipping at Zero Biases Totals &#8212; OpenDP Cookbook 0.16.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=207b195f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=7de89ed4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dessert/signed-counts';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Privacy attacks: Motivation for DP" href="attacks/index.html" />
+    <link rel="prev" title="Accuracy: Pitfalls and Edge Cases" href="accuracy-pitfalls.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+  <aside class="bd-header-announcement d-print-none d-none" aria-label="Announcement" data-pst-announcement-url="https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-light" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-dark pst-js-only" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="accuracy-pitfalls.html">Accuracy: Pitfalls and Edge Cases</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Signed Counts: Why Clipping at Zero Biases Totals</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="attacks/index.html">Privacy attacks: Motivation for DP</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/differencing-attack.html">Differencing Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/membership-attack.html">Membership Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/reconstruction-attack.html">Reconstruction Attack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="mechanisms/index.html">DP Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="mechanisms/quantiles-exponential-mechanism.html">Quantiles with the Exponential Mechanism</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🍰 Desserts</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Signed Counts: Why Clipping at Zero Biases Totals</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition note">
+    Edit the
+    <a href="https://github.com/opendp/opendp-cookbook/blob/main/source/dessert/signed-counts.py">python source</a>
+    for this recipe, or download the generated
+    <a href="signed-counts.ipynb" download>.ipynb notebook</a>.
+</div><section id="Signed-Counts:-Why-Clipping-at-Zero-Biases-Totals">
+<h1>Signed Counts: Why Clipping at Zero Biases Totals<a class="headerlink" href="#Signed-Counts:-Why-Clipping-at-Zero-Biases-Totals" title="Link to this heading">#</a></h1>
+<p>Before OpenDP 0.16, a noisy count from <code class="docutils literal notranslate"><span class="pre">dp.len()</span></code> or <code class="docutils literal notranslate"><span class="pre">.dp.count()</span></code> could never be negative: if the noise pushed a count below zero, OpenDP returned zero. That looks sensible, since a real count can’t be negative. But it has a cost that is easy to miss. Each clipped count is a little too high on average, and when you add many clipped counts together, those small errors pile up.</p>
+<p>OpenDP 0.16 adds a <code class="docutils literal notranslate"><span class="pre">signed</span></code> argument to the count functions. With <code class="docutils literal notranslate"><span class="pre">signed=True</span></code>, negative noisy counts are kept. This recipe shows where the bias of clipping comes from, how big it gets, and when you should use each option.</p>
+<p>A note on words: you may also see this called “clamping at zero”. Here “clipping” always means raising a negative noisy output to zero. It is not the same as clipping each person’s contribution before noise is added, which is a different (and important) step in many DP analyses.</p>
+<section id="The-setup">
+<h2>The setup<a class="headerlink" href="#The-setup" title="Link to this heading">#</a></h2>
+<p>Imagine a table of counts that is broken down finely: 50 regions times 8 categories gives 400 cells. Most people fall into a few popular cells, so many cells are small or empty. This is common in real releases: the more you break a table down, the more small cells you get.</p>
+<p>We make up a dataset of 2,000 people. Region and category popularity both follow a long-tailed distribution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">opendp.prelude</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">dp</span><span class="o">.</span><span class="n">enable_features</span><span class="p">(</span><span class="s2">"contrib"</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">n_people</span> <span class="o">=</span> <span class="mi">2_000</span>
+<span class="n">regions</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"region-</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">50</span><span class="p">)]</span>
+<span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"category-</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">long_tail</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">**</span> <span class="mf">1.3</span>
+    <span class="k">return</span> <span class="n">weights</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"region"</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">regions</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_people</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">long_tail</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">))),</span>
+        <span class="s2">"category"</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_people</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">long_tail</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">))),</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The region and category names are public, so we can list every cell up front. This matters: the list of keys must come from public knowledge, never from the data. If we only released the cells that appear in the data, the list of cells itself would leak information.</p>
+<p>We also compute the exact count in every cell. These exact counts are not differentially private. We use them only to measure how far the DP releases are from the truth; a real analysis would never publish them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">keys</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">({</span><span class="s2">"region"</span><span class="p">:</span> <span class="n">regions</span><span class="p">})</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">LazyFrame</span><span class="p">({</span><span class="s2">"category"</span><span class="p">:</span> <span class="n">categories</span><span class="p">}),</span> <span class="n">how</span><span class="o">=</span><span class="s2">"cross"</span>
+<span class="p">)</span>
+
+<span class="n">true_counts</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">keys</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">)</span><span class="o">.</span><span class="n">len</span><span class="p">(),</span>
+        <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">],</span>
+        <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">with_columns</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"len"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">true_counts</span><span class="o">.</span><span class="n">height</span><span class="si">}</span><span class="s2"> cells"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">true_counts</span><span class="p">[</span><span class="s1">'len'</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> are empty"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">true_counts</span><span class="p">[</span><span class="s1">'len'</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> have 3 or fewer people"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+400 cells
+145 are empty
+311 have 3 or fewer people
+</pre></div></div>
+</div>
+</section>
+<section id="One-release,-two-ways">
+<h2>One release, two ways<a class="headerlink" href="#One-release,-two-ways" title="Link to this heading">#</a></h2>
+<p>Each person is in exactly one cell, so this table costs the same privacy budget as one count. At <span class="math notranslate nohighlight">\(\epsilon = 1\)</span>, OpenDP adds integer Laplace noise with scale 1 to each cell.</p>
+<p>We compare two versions of the same query: <code class="docutils literal notranslate"><span class="pre">dp.len(signed=False)</span></code> clips negative noisy counts to zero, and <code class="docutils literal notranslate"><span class="pre">dp.len(signed=True)</span></code> keeps them.</p>
+<p>Passing the full list of keys with <code class="docutils literal notranslate"><span class="pre">.with_keys()</span></code> means empty cells get a noisy count too. Here is the noise scale for one cell. The <code class="docutils literal notranslate"><span class="pre">accuracy</span></code> column says that, with 95% confidence, each noisy cell is within that distance of its true count.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">context</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">compositor</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">privacy_unit</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">unit_of</span><span class="p">(</span><span class="n">contributions</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">privacy_loss</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">loss_of</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">split_evenly_over</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">dp</span><span class="o">.</span><span class="n">len</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span><span class="o">.</span><span class="n">with_keys</span><span class="p">(</span>
+    <span class="n">keys</span>
+<span class="p">)</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (1, 5)</small><table border="1" class="dataframe"><thead><tr><th>column</th><th>aggregate</th><th>distribution</th><th>scale</th><th>accuracy</th></tr><tr><td>str</td><td>str</td><td>str</td><td>f64</td><td>f64</td></tr></thead><tbody><tr><td>&quot;len&quot;</td><td>&quot;Frame Length&quot;</td><td>&quot;Integer Laplace&quot;</td><td>1.0</td><td>3.375618</td></tr></tbody></table></div></div>
+</div>
+<p>To compare the two options fairly, we release the same table many times with each. In a real analysis you would release it once, and never release the un-noised values. Repeating it here lets us see the average behavior of each option, which is what bias is about.</p>
+<p><code class="docutils literal notranslate"><span class="pre">query.resolve()</span></code> turns a query into an OpenDP measurement, which we can call on the data as often as we like. Every call is a fresh release with the same noise scale as above, and costs another <span class="math notranslate nohighlight">\(\epsilon = 1\)</span>. Be careful: calling the measurement directly skips the Context’s budget check entirely. The 400 table releases below (200 for each option) add up to <span class="math notranslate nohighlight">\(\epsilon = 400\)</span>, and nothing stops or records that. That is fine for a demonstration on made-up data. With real data, use
+<code class="docutils literal notranslate"><span class="pre">query.release()</span></code>, which the Context checks against your budget, unless you track the budget yourself.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_repeats</span> <span class="o">=</span> <span class="mi">200</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">release_many</span><span class="p">(</span><span class="n">signed</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">dp</span><span class="o">.</span><span class="n">len</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="n">signed</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">with_keys</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">measurement</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">releases</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_repeats</span><span class="p">):</span>
+        <span class="n">released</span> <span class="o">=</span> <span class="n">measurement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">"region"</span><span class="p">,</span> <span class="s2">"category"</span><span class="p">)</span>
+        <span class="n">releases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">released</span><span class="p">[</span><span class="s2">"len"</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Int64</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+    <span class="c1"># one row per repeat, one column per cell</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">releases</span><span class="p">)</span>
+
+
+<span class="n">signed_releases</span> <span class="o">=</span> <span class="n">release_many</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">clipped_releases</span> <span class="o">=</span> <span class="n">release_many</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">truth</span> <span class="o">=</span> <span class="n">true_counts</span><span class="p">[</span><span class="s2">"len"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"lowest signed count:"</span><span class="p">,</span> <span class="n">signed_releases</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"lowest clipped count:"</span><span class="p">,</span> <span class="n">clipped_releases</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lowest signed count: -9
+lowest clipped count: 0
+</pre></div></div>
+</div>
+</section>
+<section id="Where-the-bias-comes-from">
+<h2>Where the bias comes from<a class="headerlink" href="#Where-the-bias-comes-from" title="Link to this heading">#</a></h2>
+<p>Take a cell whose true count is <span class="math notranslate nohighlight">\(c\)</span>, and call the noise <span class="math notranslate nohighlight">\(Z\)</span>. The signed release is <span class="math notranslate nohighlight">\(c + Z\)</span>. The noise is centered on zero, so on average the release equals <span class="math notranslate nohighlight">\(c\)</span>.</p>
+<p>The clipped release is <span class="math notranslate nohighlight">\(\max(0, c + Z)\)</span>. When <span class="math notranslate nohighlight">\(c\)</span> is large, the noise almost never reaches zero, and clipping does nothing. When <span class="math notranslate nohighlight">\(c\)</span> is small, some draws land below zero and get raised up to zero. Nothing ever pulls a release down to make up for that, so on average the clipped release is above <span class="math notranslate nohighlight">\(c\)</span>.</p>
+<p>For integer Laplace noise with scale <span class="math notranslate nohighlight">\(b\)</span>, <span class="math notranslate nohighlight">\(P(Z = k) \propto e^{-|k|/b}\)</span>. We can compute the expected clipped release exactly by summing over <span class="math notranslate nohighlight">\(k\)</span>, and then check it against the releases above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">expected_clipped</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">k_max</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">k_max</span><span class="p">,</span> <span class="n">k_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="n">pmf</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">q</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">q</span><span class="p">)</span> <span class="o">*</span> <span class="n">q</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">pmf</span><span class="p">)</span>
+
+
+<span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">c_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">theory_bias</span> <span class="o">=</span> <span class="p">[</span><span class="n">expected_clipped</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_values</span><span class="p">]</span>
+
+<span class="n">observed_clipped</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">clipped_releases</span><span class="p">[:,</span> <span class="n">truth</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">if</span> <span class="p">(</span><span class="n">truth</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_values</span>
+<span class="p">]</span>
+<span class="n">observed_signed</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">signed_releases</span><span class="p">[:,</span> <span class="n">truth</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">if</span> <span class="p">(</span><span class="n">truth</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">c_values</span>
+<span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">c_values</span><span class="p">,</span> <span class="n">theory_bias</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"clipped, theory"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">c_values</span><span class="p">,</span> <span class="n">observed_clipped</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"clipped, observed"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">c_values</span><span class="p">,</span> <span class="n">observed_signed</span><span class="p">,</span> <span class="s2">"s"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"signed, observed"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"true count in cell"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"average release minus true count"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Bias per cell (noise scale 1)"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/dessert_signed-counts_9_0.png" src="../_images/dessert_signed-counts_9_0.png" />
+</div>
+</div>
+<p>An empty cell comes out at about 0.43 on average when clipped, instead of 0. By a true count of about 5 the bias is close to zero. Signed counts sit near zero bias for every cell size. The points that wander a little come from cell sizes with only a few cells, so they are just sampling noise.</p>
+</section>
+<section id="Clipping-is-not-worse-for-one-cell">
+<h2>Clipping is not worse for one cell<a class="headerlink" href="#Clipping-is-not-worse-for-one-cell" title="Link to this heading">#</a></h2>
+<p>Before we go further, it’s worth being fair to clipping. For a single cell, clipping never moves the release further from the truth: the true count is at least zero, so raising a negative release up to zero can only bring it closer.</p>
+<p>To see this without extra randomness getting in the way, we compare on the same noise draws: we take the signed releases and clip them ourselves with <code class="docutils literal notranslate"><span class="pre">np.maximum(...,</span> <span class="pre">0)</span></code>, which gives the same distribution as <code class="docutils literal notranslate"><span class="pre">signed=False</span></code> in OpenDP. Here is the average absolute error per cell for each option:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">self_clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">signed_releases</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">==</span> <span class="n">c</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">continue</span>
+    <span class="n">signed_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">signed_releases</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">clipped_err</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">self_clipped</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">-</span> <span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"true count </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">: signed error </span><span class="si">{</span><span class="n">signed_err</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, clipped error </span><span class="si">{</span><span class="n">clipped_err</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+true count 0: signed error 0.86, clipped error 0.42
+true count 1: signed error 0.85, clipped error 0.69
+true count 2: signed error 0.84, clipped error 0.78
+true count 5: signed error 0.85, clipped error 0.85
+</pre></div></div>
+</div>
+<p>So if your readers look at one cell at a time and would be confused by a negative count, clipping is a reasonable choice. The problem starts when someone adds cells together.</p>
+</section>
+<section id="What-happens-when-you-add-cells">
+<h2>What happens when you add cells<a class="headerlink" href="#What-happens-when-you-add-cells" title="Link to this heading">#</a></h2>
+<p>Suppose a reader of our table wants the total number of people. The natural thing is to add up all 400 cells.</p>
+<p>With signed counts, the errors in each cell are independent and centered on zero, so the error in the total stays centered on zero. Its typical size grows only with the square root of the number of cells.</p>
+<p>With clipped counts, every small cell adds its own positive bias. Bias doesn’t cancel, so it grows in step with the number of small cells. (Large cells add almost nothing: by a true count of 5 the bias per cell is about 0.003.)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">true_total</span> <span class="o">=</span> <span class="n">truth</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">signed_total_error</span> <span class="o">=</span> <span class="n">signed_releases</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">true_total</span>
+<span class="n">clipped_total_error</span> <span class="o">=</span> <span class="n">clipped_releases</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">true_total</span>
+<span class="n">predicted_total_bias</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">expected_clipped</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span> <span class="o">-</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">truth</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">all_errors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">signed_total_error</span><span class="p">,</span> <span class="n">clipped_total_error</span><span class="p">])</span>
+<span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">all_errors</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">all_errors</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">signed_total_error</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"signed"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">clipped_total_error</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"clipped"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"sum of 400 released cells minus true total"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"number of repeats"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error in the grand total (true total = </span><span class="si">{</span><span class="n">true_total</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"signed:  average error </span><span class="si">{</span><span class="n">signed_total_error</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"clipped: average error </span><span class="si">{</span><span class="n">clipped_total_error</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"clipped, predicted from theory: </span><span class="si">{</span><span class="n">predicted_total_bias</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"repeats where the clipped total was too high: </span><span class="si">{</span><span class="p">(</span><span class="n">clipped_total_error</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"repeats where the signed total was too high: </span><span class="si">{</span><span class="p">(</span><span class="n">signed_total_error</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/dessert_signed-counts_13_0.png" src="../_images/dessert_signed-counts_13_0.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+signed:  average error -2.9
+clipped: average error +82.0
+clipped, predicted from theory: +80.8
+repeats where the clipped total was too high: 100%
+repeats where the signed total was too high: 48%
+</pre></div></div>
+</div>
+<p>The clipped total is too high in essentially every repeat, by roughly the amount the theory predicts. The signed total is sometimes high and sometimes low. Its average over 200 repeats lands within a few people of zero, which is the size of difference that random noise alone produces.</p>
+<p>The same thing happens at every level of the table. A region total built from 8 clipped cells is biased upward, and the bias is largest for the small regions, where it is the biggest share of the count.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cells_per_region</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
+<span class="n">region_truth</span> <span class="o">=</span> <span class="n">truth</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span> <span class="n">cells_per_region</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">region_signed</span> <span class="o">=</span> <span class="n">signed_releases</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_repeats</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span> <span class="n">cells_per_region</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+    <span class="n">axis</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">region_clipped</span> <span class="o">=</span> <span class="n">clipped_releases</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+    <span class="n">n_repeats</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">),</span> <span class="n">cells_per_region</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">region_truth</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">region_truth</span><span class="p">[</span><span class="n">order</span><span class="p">],</span>
+    <span class="p">(</span><span class="n">region_clipped</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">region_truth</span><span class="p">)[</span><span class="n">order</span><span class="p">],</span>
+    <span class="s2">"o"</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">"clipped"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+    <span class="n">region_truth</span><span class="p">[</span><span class="n">order</span><span class="p">],</span>
+    <span class="p">(</span><span class="n">region_signed</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="n">region_truth</span><span class="p">)[</span><span class="n">order</span><span class="p">],</span>
+    <span class="s2">"s"</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">"signed"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xscale</span><span class="p">(</span><span class="s2">"log"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"true region total"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"average region total minus truth"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Bias in region totals (each is a sum of 8 cells)"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/dessert_signed-counts_15_0.png" src="../_images/dessert_signed-counts_15_0.png" />
+</div>
+</div>
+</section>
+<section id="Takeaways">
+<h2>Takeaways<a class="headerlink" href="#Takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Clipping each count at zero makes each count look right and never makes a single count less accurate.</p></li>
+<li><p>But clipped counts are biased upward, and the bias adds up when counts are summed. With many small cells, the sum can be far off, always in the same direction.</p></li>
+<li><p>If anyone might add up, average, or model your counts, release them with <code class="docutils literal notranslate"><span class="pre">signed=True</span></code>. You can still clip at the very end, for display, after any sums are done. Clipping a released value is post-processing, so it costs no extra privacy budget.</p></li>
+<li><p>If you need both a clean-looking table and accurate totals, another option is to release the totals as their own queries, instead of asking readers to add up clipped cells. Those queries need their own share of the privacy budget, so plan for them when you create the Context (for example with <code class="docutils literal notranslate"><span class="pre">split_evenly_over=2</span></code>). The released totals also won’t exactly equal the sum of the released cells.</p></li>
+<li><p>Whichever you choose, always pass <code class="docutils literal notranslate"><span class="pre">signed</span></code> explicitly, so your code means the same thing in every OpenDP version.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="accuracy-pitfalls.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Accuracy: Pitfalls and Edge Cases</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="attacks/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Privacy attacks: Motivation for DP</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#The-setup">The setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#One-release,-two-ways">One release, two ways</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Where-the-bias-comes-from">Where the bias comes from</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clipping-is-not-worse-for-one-cell">Clipping is not worse for one cell</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#What-happens-when-you-add-cells">What happens when you add cells</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Takeaways">Takeaways</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, OpenDP Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
