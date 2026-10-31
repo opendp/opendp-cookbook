@@ -171,4 +171,5 @@ plt.show()
 # even when the mechanism happens to release zero.
 #
 # This is because the target can always appeal:
+#
 # > My income wasn't actually zero! It was the noise! I practically made six figures!
