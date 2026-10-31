@@ -31,4 +31,6 @@ jobs:
 
       - run: uv run make html
 
+      - run: uv run python check_notebook_outputs.py
+
       - run: uv run linkchecker -f linkchecker.cfg build/html/index.html
