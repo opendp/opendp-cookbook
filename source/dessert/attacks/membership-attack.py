@@ -325,7 +325,7 @@ from functools import cache
 
 import opendp.prelude as dp
 
-dp.enable_features("floating-point", "contrib")
+dp.enable_features("idealized-numerics", "contrib")
 
 epsilon = 1.0
 
