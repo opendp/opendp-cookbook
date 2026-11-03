@@ -329,7 +329,7 @@ plt.show()
 # +
 import opendp.prelude as dp
 
-dp.enable_features("floating-point", "contrib")
+dp.enable_features("idealized-numerics", "contrib")
 max_influence = 1
 
 epsilons = {}
