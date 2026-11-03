@@ -5,12 +5,14 @@ nbsphinx saves each notebook after executing it, next to the HTML.
 Warnings are shown in the rendered page, but they do not fail the build,
 so this script checks the saved outputs instead.
 
-Usage: python check_notebook_outputs.py [build/html]
+Usage: python check_notebook_outputs.py
 """
 
 import json
 import sys
 from pathlib import Path
+
+BUILD_DIR = Path(__file__).parent / "build" / "html"
 
 
 def problems(notebook_path):
@@ -24,10 +26,10 @@ def problems(notebook_path):
                 yield "".join(output["text"]).strip()
 
 
-def main(build_dir):
-    notebook_paths = sorted(Path(build_dir).rglob("*.ipynb"))
+def main():
+    notebook_paths = sorted(BUILD_DIR.rglob("*.ipynb"))
     if not notebook_paths:
-        sys.exit(f"No notebooks found under {build_dir}: run 'make html' first.")
+        sys.exit(f"No notebooks found under {BUILD_DIR}: run 'make html' first.")
     failed = False
     for notebook_path in notebook_paths:
         for problem in problems(notebook_path):
@@ -39,4 +41,4 @@ def main(build_dir):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "build/html")
+    main()
