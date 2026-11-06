@@ -22,6 +22,7 @@ exclude_patterns = [
     "conf.py"
 ]  # Other .py files WILL BE converted to notebooks and executed.
 nitpicky = True
+nbsphinx_allow_errors = True  # All errors and warnings caught in scan after build.
 
 
 # -- Options for HTML output --

@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-def problems(notebook_path):
+def get_problems(notebook_path):
     """Yields a short description of each stderr or error output in the notebook."""
     notebook = json.loads(notebook_path.read_text())
     for cell in notebook["cells"]:
@@ -30,9 +30,12 @@ def main():
         sys.exit(f"No notebooks found under {build_path}: run 'make html' first.")
     failed = False
     for notebook_path in notebook_paths:
-        for problem in problems(notebook_path):
+        problems = list(get_problems(notebook_path))
+        if problems:
             failed = True
-            print(f"{notebook_path}:\n    {problem}\n")
+            print(notebook_path)
+            for problem in problems:
+                print(f"\t{problem}")
     if failed:
         sys.exit("Notebook outputs include warnings or errors.")
     print(f"Checked {len(notebook_paths)} notebooks: no warnings or errors.")
