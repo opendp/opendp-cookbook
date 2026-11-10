@@ -1,0 +1,827 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Accuracy: Pitfalls and Edge Cases &#8212; OpenDP Cookbook 0.16.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=207b195f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=7de89ed4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dessert/accuracy-pitfalls';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Signed Counts: Why Clipping at Zero Biases Totals" href="signed-counts.html" />
+    <link rel="prev" title="🍰 Desserts" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+  <aside class="bd-header-announcement d-print-none d-none" aria-label="Announcement" data-pst-announcement-url="https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-light" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-dark pst-js-only" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Accuracy: Pitfalls and Edge Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signed-counts.html">Signed Counts: Why Clipping at Zero Biases Totals</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="attacks/index.html">Privacy attacks: Motivation for DP</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/differencing-attack.html">Differencing Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/membership-attack.html">Membership Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/reconstruction-attack.html">Reconstruction Attack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="mechanisms/index.html">DP Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="mechanisms/quantiles-exponential-mechanism.html">Quantiles with the Exponential Mechanism</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🍰 Desserts</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Accuracy: Pitfalls and Edge Cases</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition note">
+    Edit the
+    <a href="https://github.com/opendp/opendp-cookbook/blob/main/source/dessert/accuracy-pitfalls.py">python source</a>
+    for this recipe, or download the generated
+    <a href="accuracy-pitfalls.ipynb" download>.ipynb notebook</a>.
+</div><section id="Accuracy:-Pitfalls-and-Edge-Cases">
+<h1>Accuracy: Pitfalls and Edge Cases<a class="headerlink" href="#Accuracy:-Pitfalls-and-Edge-Cases" title="Link to this heading">#</a></h1>
+<p>This notebook describes OpenDP’s accuracy calculations, and ways in which an analyst might be tripped up by them.</p>
+<section id="Overview">
+<h2>Overview<a class="headerlink" href="#Overview" title="Link to this heading">#</a></h2>
+<section id="Accuracy-vs.-Confidence-Intervals">
+<h3>Accuracy vs. Confidence Intervals<a class="headerlink" href="#Accuracy-vs.-Confidence-Intervals" title="Link to this heading">#</a></h3>
+<p>Each differentially private mechanism (e.g. Laplace, Gaussian) in OpenDP has an associated accuracy that is a function of alpha and the noise scale. Imagine you have data <span class="math notranslate nohighlight">\(D\)</span>, and you want, for some function <span class="math notranslate nohighlight">\(\phi\)</span> to return <span class="math notranslate nohighlight">\(\phi(D)\)</span> in a differentially private way – we will call this value <span class="math notranslate nohighlight">\(\phi_{dp}(D)\)</span>. An <span class="math notranslate nohighlight">\(\alpha\)</span>-level accuracy guarantee <span class="math notranslate nohighlight">\(a\)</span> promises that, over infinite runs of the mechanism on the data in question,</p>
+<div class="math notranslate nohighlight">
+\[\phi(D) \in [\phi_{dp}(D) - a, \phi_{dp}(D) + a]\]</div>
+<p>with probability at least <span class="math notranslate nohighlight">\(1 - \alpha\)</span>.</p>
+<p>This looks very much like the traditional confidence interval, but it is important to note a major difference. In a canonical confidence interval, the uncertainty being represented is due to sampling error – that is, how often will it be the case that <span class="math notranslate nohighlight">\(\phi(P)\)</span> (the value of <span class="math notranslate nohighlight">\(\phi\)</span> on the underlying population) is within some range of the realized <span class="math notranslate nohighlight">\(\phi(D)\)</span>.</p>
+<p>In OpenDP (and differentially private data analysis generally), there is an extra layer of uncertainty due to the noise added to <span class="math notranslate nohighlight">\(\phi(D)\)</span> to produce <span class="math notranslate nohighlight">\(\phi_{dp}(D)\)</span>. OpenDP’s accuracy utilities described below deal only with the uncertainty of <span class="math notranslate nohighlight">\(\phi_{dp}(D)\)</span> relative to <span class="math notranslate nohighlight">\(\phi(D)\)</span> and not the uncertainty of <span class="math notranslate nohighlight">\(\phi(D)\)</span> relative to <span class="math notranslate nohighlight">\(\phi(P)\)</span>, but there is ongoing work to provide methods that incorporate both.</p>
+</section>
+<section id="What-is-D?">
+<h3>What is <span class="math notranslate nohighlight">\(D\)</span>?<a class="headerlink" href="#What-is-D?" title="Link to this heading">#</a></h3>
+<p>Before any noise is added, OpenDP preprocesses the data. For example, <code class="docutils literal notranslate"><span class="pre">.dp.sum()</span></code> and <code class="docutils literal notranslate"><span class="pre">.dp.mean()</span></code> clip each value to the bounds you give them, and they replace any missing values with the midpoint of the bounds. Call the preprocessed data <span class="math notranslate nohighlight">\(\tilde{D}\)</span>. Accuracy guarantees are always relative to <span class="math notranslate nohighlight">\(\tilde{D}\)</span>: clipping and imputation are not factored into the accuracy.</p>
+</section>
+<section id="Synopsis">
+<h3>Synopsis<a class="headerlink" href="#Synopsis" title="Link to this heading">#</a></h3>
+<p>Say an analyst releases <span class="math notranslate nohighlight">\(\phi_{dp}(D)\)</span> and gets an accuracy guarantee of <span class="math notranslate nohighlight">\(a\)</span> at accuracy-level <span class="math notranslate nohighlight">\(\alpha\)</span>. <span class="math notranslate nohighlight">\(D\)</span> is drawn from population <span class="math notranslate nohighlight">\(P\)</span> and is preprocessed into <span class="math notranslate nohighlight">\(\tilde{D}\)</span>. This suggests that over infinite runs of this procedure,</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\phi_{dp}(D) \in [\phi(\tilde{D}) - a, \phi(\tilde{D}) + a]\)</span> with probability at least <span class="math notranslate nohighlight">\(1 - \alpha\)</span></p></li>
+<li><p>It is likely that <span class="math notranslate nohighlight">\(\phi_{dp}(D) \in [\phi(D) - a, \phi(D) + a]\)</span> with probability <span class="math notranslate nohighlight">\(\approx 1 - \alpha\)</span>, though we cannot make any guarantee. If preprocessing changes little (for example, the bounds contain almost all of the data), this is likely to be approximately true. If preprocessing changes a lot, it can be badly wrong. In the next sections, we will explore an example of each.</p></li>
+<li><p>We cannot directly make statements about the uncertainty of <span class="math notranslate nohighlight">\(\phi_{dp}(D)\)</span> relative to <span class="math notranslate nohighlight">\(\phi(P)\)</span>.</p></li>
+</ul>
+</section>
+</section>
+<section id="Setup">
+<h2>Setup<a class="headerlink" href="#Setup" title="Link to this heading">#</a></h2>
+<p>We use the California PUMS sample that ships with OpenDP, and we look at people’s ages. Its published name, <code class="docutils literal notranslate"><span class="pre">PUMS_california_demographics_1000</span></code>, says it has 1,000 people, so we treat that size as public knowledge. Age has no missing values, so the midpoint imputation above never comes into play here. We also compute the exact mean age. It is not differentially private; we use it only to check the DP releases against the truth.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">opendp.prelude</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">dp</span><span class="o">.</span><span class="n">enable_features</span><span class="p">(</span><span class="s2">"contrib"</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span>
+    <span class="n">dp</span><span class="o">.</span><span class="n">examples</span><span class="o">.</span><span class="n">get_california_pums_path</span><span class="p">(),</span>
+    <span class="n">has_header</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">new_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"sex"</span><span class="p">,</span> <span class="s2">"educ"</span><span class="p">,</span> <span class="s2">"race"</span><span class="p">,</span> <span class="s2">"income"</span><span class="p">,</span> <span class="s2">"married"</span><span class="p">],</span>
+    <span class="c1"># Some incomes are written like "1e+05", so they can't be read as integers.</span>
+    <span class="n">schema_overrides</span><span class="o">=</span><span class="p">{</span><span class="s2">"income"</span><span class="p">:</span> <span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">ages</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="s2">"age"</span><span class="p">]</span>
+<span class="n">D_mean_age</span> <span class="o">=</span> <span class="n">ages</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ages</span><span class="p">)</span><span class="si">}</span><span class="s2"> people, ages </span><span class="si">{</span><span class="n">ages</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">ages</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"true mean age: </span><span class="si">{</span><span class="n">D_mean_age</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1000 people, ages 18 to 93
+true mean age: 44.797
+</pre></div></div>
+</div>
+</section>
+<section id="Pitfall:-the-accuracy-of-a-mean-is-not-reported-directly">
+<h2>Pitfall: the accuracy of a mean is not reported directly<a class="headerlink" href="#Pitfall:-the-accuracy-of-a-mean-is-not-reported-directly" title="Link to this heading">#</a></h2>
+<p>The natural way to release a mean is <code class="docutils literal notranslate"><span class="pre">.dp.mean()</span></code>. It needs an upper bound on the number of rows in the data, which we give as a margin. OpenDP uses it to rule out overflow in the sum. It must come from public knowledge (here, the published sample size), not from looking at the data. If the length did come from looking at the private data, then the privacy guarantee would no longer hold.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">context</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">compositor</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">privacy_unit</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">unit_of</span><span class="p">(</span><span class="n">contributions</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">privacy_loss</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">loss_of</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">split_evenly_over</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">margins</span><span class="o">=</span><span class="p">[</span><span class="n">dp</span><span class="o">.</span><span class="n">polars</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">1000</span><span class="p">)],</span>
+<span class="p">)</span>
+
+<span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)))</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 5)</small><table border="1" class="dataframe"><thead><tr><th>column</th><th>aggregate</th><th>distribution</th><th>scale</th><th>accuracy</th></tr><tr><td>str</td><td>str</td><td>str</td><td>f64</td><td>f64</td></tr></thead><tbody><tr><td>&quot;age&quot;</td><td>&quot;Sum&quot;</td><td>&quot;Integer Laplace&quot;</td><td>200.0</td><td>599.64583</td></tr><tr><td>&quot;age&quot;</td><td>&quot;Length&quot;</td><td>&quot;Integer Laplace&quot;</td><td>2.0</td><td>6.429605</td></tr></tbody></table></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">summarize()</span></code> only describes the noise. It releases nothing and spends no budget.</p>
+<p>There are two rows, and neither of them is the mean. <code class="docutils literal notranslate"><span class="pre">.dp.mean()</span></code> releases a noisy sum and a noisy count, and divides one by the other. It splits the budget evenly, <span class="math notranslate nohighlight">\(\epsilon = 0.5\)</span> each, so the noise scales are <span class="math notranslate nohighlight">\(100 / 0.5 = 200\)</span> for the sum (one person changes it by at most 100) and <span class="math notranslate nohighlight">\(1 / 0.5 = 2\)</span> for the count. The summary gives the accuracy of each part: the sum is within about 600 of the true sum, and the count is within about 6 of the true count, each with probability
+95%. The 600 is in person-years, not years. As we will see, the interval for the mean is only about ±1 year.</p>
+<p>To get an interval for the mean, we release the two parts ourselves, which costs the same privacy budget. Suppose the noisy sum <span class="math notranslate nohighlight">\(S\)</span> is within <span class="math notranslate nohighlight">\(a_S\)</span> of the true sum, and the noisy count <span class="math notranslate nohighlight">\(N\)</span> is within <span class="math notranslate nohighlight">\(a_N\)</span> of the true count. Ages are never negative, so the true sum is too. Then the smallest the true mean can be is the smallest possible sum over the largest possible count, and the largest is the reverse:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\max(0, S - a_S)}{N + a_N} \quad \text{and} \quad \frac{S + a_S}{N - a_N}.\]</div>
+<p>This needs <span class="math notranslate nohighlight">\(N &gt; a_N\)</span>; otherwise the upper end is unbounded, and we fall back to the upper clipping bound. Since the clipped mean always lies within the clipping bounds, we also cap the interval there. We ask for each part at <span class="math notranslate nohighlight">\(\alpha / 2\)</span>, so that both hold together with probability at least <span class="math notranslate nohighlight">\(1 - \alpha\)</span>. The interval is not symmetric around <span class="math notranslate nohighlight">\(S / N\)</span>, but it plays the same role as <span class="math notranslate nohighlight">\(\phi_{dp}(D) \pm a\)</span> above.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_interval_query</span><span class="p">(</span><span class="n">bounds</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"sum"</span><span class="p">),</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">len</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"len"</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="n">query</span> <span class="o">=</span> <span class="n">mean_interval_query</span><span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">))</span>
+<span class="n">query</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 5)</small><table border="1" class="dataframe"><thead><tr><th>column</th><th>aggregate</th><th>distribution</th><th>scale</th><th>accuracy</th></tr><tr><td>str</td><td>str</td><td>str</td><td>f64</td><td>f64</td></tr></thead><tbody><tr><td>&quot;sum&quot;</td><td>&quot;Sum&quot;</td><td>&quot;Integer Laplace&quot;</td><td>200.0</td><td>738.275266</td></tr><tr><td>&quot;len&quot;</td><td>&quot;Length&quot;</td><td>&quot;Integer Laplace&quot;</td><td>2.0</td><td>7.815899</td></tr></tbody></table></div></div>
+</div>
+<p>The scales match the two rows from <code class="docutils literal notranslate"><span class="pre">.dp.mean()</span></code>, so this is the same release with the parts kept separate. The accuracies are larger because we asked for <span class="math notranslate nohighlight">\(\alpha / 2\)</span> instead of <span class="math notranslate nohighlight">\(\alpha\)</span>.</p>
+</section>
+<section id="Example-1:-bounds-that-contain-all-the-data">
+<h2>Example 1: bounds that contain all the data<a class="headerlink" href="#Example-1:-bounds-that-contain-all-the-data" title="Link to this heading">#</a></h2>
+<p>To see how often the interval contains the truth, we release it many times. In a real analysis you would release it once. As in the <a class="reference internal" href="signed-counts.html"><span class="doc">signed counts recipe</span></a>, <code class="docutils literal notranslate"><span class="pre">query.resolve()</span></code> gives a measurement we can call repeatedly. Each call costs another <span class="math notranslate nohighlight">\(\epsilon = 1\)</span>, and calling it directly skips the Context’s budget check. The 400 releases below (200 for each example) add up to <span class="math notranslate nohighlight">\(\epsilon = 400\)</span>, and nothing stops or records that. Only do this for demonstrations like
+this one, never with data you need to protect.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_repeats</span> <span class="o">=</span> <span class="mi">200</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">release_intervals</span><span class="p">(</span><span class="n">bounds</span><span class="p">):</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">mean_interval_query</span><span class="p">(</span><span class="n">bounds</span><span class="p">)</span>
+    <span class="c1"># the interval below relies on every clipped value being non-negative</span>
+    <span class="k">assert</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">a_sum</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"column"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"sum"</span><span class="p">)[</span><span class="s2">"accuracy"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">a_len</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"column"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"len"</span><span class="p">)[</span><span class="s2">"accuracy"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">measurement</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">releases</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">measurement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_repeats</span><span class="p">)])</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">releases</span><span class="p">[</span><span class="s2">"sum"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">releases</span><span class="p">[</span><span class="s2">"len"</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">Float64</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="c1"># if the noisy count is too small to bound the mean, fall back to the clipping bounds</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">N</span> <span class="o">&gt;</span> <span class="n">a_len</span>
+    <span class="n">safe_N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">a_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ok</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">S</span> <span class="o">-</span> <span class="n">a_sum</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">safe_N</span> <span class="o">+</span> <span class="n">a_len</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ok</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="n">S</span> <span class="o">+</span> <span class="n">a_sum</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">safe_N</span> <span class="o">-</span> <span class="n">a_len</span><span class="p">)),</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span> <span class="o">/</span> <span class="n">N</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">target</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">target</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">))</span>
+
+
+<span class="n">wide_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<span class="n">wide_mean</span><span class="p">,</span> <span class="n">wide_lower</span><span class="p">,</span> <span class="n">wide_upper</span> <span class="o">=</span> <span class="n">release_intervals</span><span class="p">(</span><span class="n">wide_bounds</span><span class="p">)</span>
+<span class="n">D_tilde_wide</span> <span class="o">=</span> <span class="n">ages</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="o">*</span><span class="n">wide_bounds</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"average interval width: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">wide_upper</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">wide_lower</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> years"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"contains the mean of D_tilde: </span><span class="si">{</span><span class="n">coverage</span><span class="p">(</span><span class="n">wide_lower</span><span class="p">,</span><span class="w"> </span><span class="n">wide_upper</span><span class="p">,</span><span class="w"> </span><span class="n">D_tilde_wide</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"contains the mean of D:       </span><span class="si">{</span><span class="n">coverage</span><span class="p">(</span><span class="n">wide_lower</span><span class="p">,</span><span class="w"> </span><span class="n">wide_upper</span><span class="p">,</span><span class="w"> </span><span class="n">D_mean_age</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+average interval width: 2.18 years
+contains the mean of D_tilde: 100%
+contains the mean of D:       100%
+</pre></div></div>
+</div>
+<p>The oldest person is 93, so clipping to <span class="math notranslate nohighlight">\([0, 100]\)</span> changes nothing, and <span class="math notranslate nohighlight">\(D\)</span> and <span class="math notranslate nohighlight">\(\tilde{D}\)</span> are the same data. The guarantee on <span class="math notranslate nohighlight">\(\tilde{D}\)</span> carries over exactly to <span class="math notranslate nohighlight">\(D\)</span>. The coverage is above 95% because the interval is conservative: it assumes the sum and the count are both off by their full accuracy, in the worst directions, at once.</p>
+</section>
+<section id="Example-2:-bounds-that-are-too-narrow">
+<h2>Example 2: bounds that are too narrow<a class="headerlink" href="#Example-2:-bounds-that-are-too-narrow" title="Link to this heading">#</a></h2>
+<p>Now suppose the analyst guesses the bounds <span class="math notranslate nohighlight">\([0, 60]\)</span>. No one would choose this for age on purpose; it stands in for any case where the bounds cut off real values. About a fifth of the people are older than 60, and their ages are clipped down to 60 before any noise is added. The narrower bounds also mean less noise (the sum’s noise scale drops from 200 to 120), so the interval gets tighter.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">narrow_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">)</span>
+<span class="n">narrow_mean</span><span class="p">,</span> <span class="n">narrow_lower</span><span class="p">,</span> <span class="n">narrow_upper</span> <span class="o">=</span> <span class="n">release_intervals</span><span class="p">(</span><span class="n">narrow_bounds</span><span class="p">)</span>
+<span class="n">D_tilde_narrow</span> <span class="o">=</span> <span class="n">ages</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="o">*</span><span class="n">narrow_bounds</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"share of people older than 60: </span><span class="si">{</span><span class="p">(</span><span class="n">ages</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">60</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mean of D_tilde: </span><span class="si">{</span><span class="n">D_tilde_narrow</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, mean of D: </span><span class="si">{</span><span class="n">D_mean_age</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"average interval width: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">narrow_upper</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">narrow_lower</span><span class="p">)</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> years"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"contains the mean of D_tilde: </span><span class="si">{</span><span class="n">coverage</span><span class="p">(</span><span class="n">narrow_lower</span><span class="p">,</span><span class="w"> </span><span class="n">narrow_upper</span><span class="p">,</span><span class="w"> </span><span class="n">D_tilde_narrow</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"contains the mean of D:       </span><span class="si">{</span><span class="n">coverage</span><span class="p">(</span><span class="n">narrow_lower</span><span class="p">,</span><span class="w"> </span><span class="n">narrow_upper</span><span class="p">,</span><span class="w"> </span><span class="n">D_mean_age</span><span class="p">)</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+share of people older than 60: 20%
+mean of D_tilde: 42.148, mean of D: 44.797
+average interval width: 1.55 years
+contains the mean of D_tilde: 100%
+contains the mean of D:       0%
+</pre></div></div>
+</div>
+<p>The guarantee still holds for <span class="math notranslate nohighlight">\(\tilde{D}\)</span>, as it must. But the clipped mean is more than two years below the true mean, and the interval is under two years wide, so it essentially never contains the true mean of <span class="math notranslate nohighlight">\(D\)</span>. Here are the first 50 of the 200 intervals from each example. In the left panel the two vertical lines are on top of each other, because <span class="math notranslate nohighlight">\(D\)</span> and <span class="math notranslate nohighlight">\(\tilde{D}\)</span> are the same.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_show</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">examples</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wide_bounds</span><span class="p">,</span> <span class="n">wide_mean</span><span class="p">,</span> <span class="n">wide_lower</span><span class="p">,</span> <span class="n">wide_upper</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">narrow_bounds</span><span class="p">,</span> <span class="n">narrow_mean</span><span class="p">,</span> <span class="n">narrow_lower</span><span class="p">,</span> <span class="n">narrow_upper</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">bounds</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="ow">in</span> <span class="n">examples</span><span class="p">:</span>
+    <span class="n">hits</span> <span class="o">=</span> <span class="p">(</span><span class="n">lower</span> <span class="o">&lt;=</span> <span class="n">D_mean_age</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">D_mean_age</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_show</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="s2">"tab:blue"</span> <span class="k">if</span> <span class="n">hits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"tab:red"</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">lower</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">upper</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mean</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># the release S / N</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">D_mean_age</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"mean of D"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
+        <span class="n">ages</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="o">*</span><span class="n">bounds</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"mean of D_tilde"</span>
+    <span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"bounds </span><span class="si">{</span><span class="n">bounds</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"repeat"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span>
+    <span class="s2">"First 50 of 200 intervals for the mean age (dot: S / N; red: misses the mean of D)"</span>
+<span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/dessert_accuracy-pitfalls_11_0.png" src="../_images/dessert_accuracy-pitfalls_11_0.png" />
+</div>
+</div>
+</section>
+<section id="Takeaways">
+<h2>Takeaways<a class="headerlink" href="#Takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>An accuracy guarantee is about the preprocessed data <span class="math notranslate nohighlight">\(\tilde{D}\)</span>. It carries over to the raw data only if preprocessing changed little.</p></li>
+<li><p>Narrow bounds reduce the noise, and so make the interval tighter, but they can move the target. A tight interval around the wrong value can look more trustworthy than a wide one around the right value. Choose bounds from public knowledge about what values are possible, not from what makes the interval small.</p></li>
+<li><p>Tight clipping is not always a mistake. It trades bias for less noise, and for heavy-tailed data such as income it can be a good trade. Just remember that the accuracy then describes the clipped value. To see how much was clipped, you can spend a little budget on a DP count of the values at or above the upper bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.dp.mean()</span></code> reports the accuracy of its sum and its count, not of the mean. To get an interval for the mean, release the sum and the count and combine their accuracies, as we did above.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🍰 Desserts</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="signed-counts.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Signed Counts: Why Clipping at Zero Biases Totals</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Accuracy-vs.-Confidence-Intervals">Accuracy vs. Confidence Intervals</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#What-is-D?">What is <span class="math notranslate nohighlight">\(D\)</span>?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Synopsis">Synopsis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Pitfall:-the-accuracy-of-a-mean-is-not-reported-directly">Pitfall: the accuracy of a mean is not reported directly</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-1:-bounds-that-contain-all-the-data">Example 1: bounds that contain all the data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-2:-bounds-that-are-too-narrow">Example 2: bounds that are too narrow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Takeaways">Takeaways</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, OpenDP Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
