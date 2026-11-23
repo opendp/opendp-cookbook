@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Streaming Large Files with Polars &#8212; OpenDP Cookbook 0.16.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=207b195f" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../_static/documentation_options.js?v=7de89ed4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dessert/polars-streaming';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Signed Counts: Why Clipping at Zero Biases Totals" href="signed-counts.html" />
+    <link rel="prev" title="Accuracy: Pitfalls and Edge Cases" href="accuracy-pitfalls.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+  <aside class="bd-header-announcement d-print-none d-none" aria-label="Announcement" data-pst-announcement-url="https://raw.githubusercontent.com/opendp/opendp/refs/heads/main/docs/source/announcement.html"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-light" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+    <img src="../_static/opendp-cookbook-logo.svg" class="logo__image only-dark pst-js-only" alt="OpenDP Cookbook 0.16.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../start/index.html">
+    🥗 Starters
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../main/index.html">
+    🍝 Main courses
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🍰 Desserts
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/opendp/opendp-cookbook" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="accuracy-pitfalls.html">Accuracy: Pitfalls and Edge Cases</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Streaming Large Files with Polars</a></li>
+<li class="toctree-l1"><a class="reference internal" href="signed-counts.html">Signed Counts: Why Clipping at Zero Biases Totals</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="attacks/index.html">Privacy attacks: Motivation for DP</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="attacks/differencing-attack.html">Differencing Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/membership-attack.html">Membership Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="attacks/reconstruction-attack.html">Reconstruction Attack</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="mechanisms/index.html">DP Mechanisms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="mechanisms/quantiles-exponential-mechanism.html">Quantiles with the Exponential Mechanism</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🍰 Desserts</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Streaming Large Files with Polars</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition note">
+    Edit the
+    <a href="https://github.com/opendp/opendp-cookbook/blob/main/source/dessert/polars-streaming.py">python source</a>
+    for this recipe, or download the generated
+    <a href="polars-streaming.ipynb" download>.ipynb notebook</a>.
+</div><section id="Streaming-Large-Files-with-Polars">
+<h1>Streaming Large Files with Polars<a class="headerlink" href="#Streaming-Large-Files-with-Polars" title="Link to this heading">#</a></h1>
+<p>OpenDP uses Polars to compute its queries. By default, Polars loads all the columns a query needs into memory before it computes anything. Polars also has a streaming engine, which reads the data in batches, so you can query a file that is larger than memory.</p>
+<p>Use streaming when your file is close to the size of your machine’s memory, or larger. If the data fits easily, the default engine is fine.</p>
+<p>Most DP queries can use the streaming engine: counts, sums, means, grouping, and most transformations of the data. In OpenDP 0.16, quantile queries can’t. This recipe shows how to stream a DP query, how much memory it saves, and what to look out for.</p>
+<section id="Making-a-large-test-file">
+<h2>Making a large test file<a class="headerlink" href="#Making-a-large-test-file" title="Link to this heading">#</a></h2>
+<p>We make up a CSV file with 3 million rows. That fits in memory easily, but it is big enough to show the difference. We write it in chunks, so that making the file doesn’t use much memory itself.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">resource</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">opendp.prelude</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+
+<span class="n">dp</span><span class="o">.</span><span class="n">enable_features</span><span class="p">(</span><span class="s2">"contrib"</span><span class="p">)</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"CA"</span><span class="p">,</span> <span class="s2">"NY"</span><span class="p">,</span> <span class="s2">"TX"</span><span class="p">,</span> <span class="s2">"WA"</span><span class="p">]</span>
+<span class="n">n_rows</span> <span class="o">=</span> <span class="mi">3_000_000</span>
+<span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">500_000</span>
+
+<span class="n">temp_dir</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span>
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_dir</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"people.csv"</span>
+<span class="k">with</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+        <span class="n">pl</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"state"</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">),</span>
+                <span class="s2">"age"</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">),</span>
+                <span class="s2">"income"</span><span class="p">:</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200_000</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">write_csv</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">include_header</span><span class="o">=</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">csv_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="o">**</span><span class="mi">20</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> MB on disk"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+36 MB on disk
+</pre></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pl.scan_csv</span></code> doesn’t read the file. It returns a <code class="docutils literal notranslate"><span class="pre">LazyFrame</span></code>, which is a plan to read the file later. (For Parquet files, use <code class="docutils literal notranslate"><span class="pre">pl.scan_parquet</span></code>.) OpenDP accepts a <code class="docutils literal notranslate"><span class="pre">LazyFrame</span></code> as its data, so nothing is loaded yet.</p>
+<p>The margins describe what we know about the data without looking at it. <code class="docutils literal notranslate"><span class="pre">max_length</span></code> says the table has at most 3 million rows, in total and in each state. <code class="docutils literal notranslate"><span class="pre">invariant=&quot;keys&quot;</span></code> says the list of states is public, so it doesn’t need to be protected.</p>
+<p>We split the budget evenly over three releases: two that compare the engines, and one quantile at the end.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">context</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">Context</span><span class="o">.</span><span class="n">compositor</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">pl</span><span class="o">.</span><span class="n">scan_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">),</span>
+    <span class="n">privacy_unit</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">unit_of</span><span class="p">(</span><span class="n">contributions</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">privacy_loss</span><span class="o">=</span><span class="n">dp</span><span class="o">.</span><span class="n">loss_of</span><span class="p">(</span><span class="n">epsilon</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">split_evenly_over</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">margins</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">dp</span><span class="o">.</span><span class="n">polars</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[],</span> <span class="n">max_length</span><span class="o">=</span><span class="n">n_rows</span><span class="p">),</span>
+        <span class="n">dp</span><span class="o">.</span><span class="n">polars</span><span class="o">.</span><span class="n">Margin</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">"state"</span><span class="p">],</span> <span class="n">invariant</span><span class="o">=</span><span class="s2">"keys"</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="n">n_rows</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Streaming-a-query">
+<h2>Streaming a query<a class="headerlink" href="#Streaming-a-query" title="Link to this heading">#</a></h2>
+<p>In OpenDP 0.16, <code class="docutils literal notranslate"><span class="pre">release()</span></code> returns a <code class="docutils literal notranslate"><span class="pre">OnceFrame</span></code>, and <code class="docutils literal notranslate"><span class="pre">OnceFrame.collect()</span></code> always uses the default in-memory engine. To pick the engine yourself, take the plan out of the <code class="docutils literal notranslate"><span class="pre">OnceFrame</span></code> with <code class="docutils literal notranslate"><span class="pre">.lazy()</span></code>, then call <code class="docutils literal notranslate"><span class="pre">collect(engine=&quot;streaming&quot;)</span></code> on the plan.</p>
+<p><code class="docutils literal notranslate"><span class="pre">.lazy()</span></code> needs the <code class="docutils literal notranslate"><span class="pre">&quot;honest-but-curious&quot;</span></code> feature, because it removes protections, and you have to keep the privacy promises yourself:</p>
+<ul class="simple">
+<li><p>Collect the plan only once. Each collect is a new noisy release, and together they leak more than the budget you set.</p></li>
+<li><p>Don’t keep the <code class="docutils literal notranslate"><span class="pre">OnceFrame</span></code> after calling <code class="docutils literal notranslate"><span class="pre">.lazy()</span></code>. It can still be collected, and that would be another release that the budget doesn’t count.</p></li>
+<li><p>Don’t look at the order of the output rows, because the order can reveal information about the data. Don’t add steps to the plan that depend on row order (like <code class="docutils literal notranslate"><span class="pre">head</span></code> or <code class="docutils literal notranslate"><span class="pre">with_row_index</span></code>), and shuffle the output once you have collected it, as the <code class="docutils literal notranslate"><span class="pre">`lazy()</span></code> docs &lt;<a class="reference external" href="https://docs.opendp.org/en/stable/api/python/opendp.extras.polars.html#opendp.extras.polars.OnceFrame.lazy">https://docs.opendp.org/en/stable/api/python/opendp.extras.polars.html#opendp.extras.polars.OnceFrame.lazy</a>&gt;`__ say.</p></li>
+</ul>
+<p>Once enabled, the feature stays on for the rest of the Python session.</p>
+<p>Each release below is a count and a mean income for each state. <code class="docutils literal notranslate"><span class="pre">signed=True</span></code> keeps negative noisy counts (see the signed counts recipe in this section). <code class="docutils literal notranslate"><span class="pre">fill_null(0)</span></code> is needed because OpenDP can’t know that the file has no missing values.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dp</span><span class="o">.</span><span class="n">enable_features</span><span class="p">(</span><span class="s2">"honest-but-curious"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">release_plan</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Releases a count and a mean income for each state, and returns only the plan, to collect once."""</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">"state"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">dp</span><span class="o">.</span><span class="n">len</span><span class="p">(</span><span class="n">signed</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"income"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">200_000</span><span class="p">)),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">release</span><span class="p">()</span><span class="o">.</span><span class="n">lazy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>We release the same statistics twice only to compare the two engines. In a real analysis you would release them once.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">streaming_plan</span> <span class="o">=</span> <span class="n">release_plan</span><span class="p">()</span>
+<span class="n">in_memory_plan</span> <span class="o">=</span> <span class="n">release_plan</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Checking-that-the-plan-streams">
+<h2>Checking that the plan streams<a class="headerlink" href="#Checking-that-the-plan-streams" title="Link to this heading">#</a></h2>
+<p>Before you collect, you can check which parts of the plan the streaming engine will run. <code class="docutils literal notranslate"><span class="pre">show_graph</span></code> with <code class="docutils literal notranslate"><span class="pre">plan_stage=&quot;physical&quot;</span></code> describes the steps without running them. Here we pick out the name of each step. A step called <code class="docutils literal notranslate"><span class="pre">in-memory-map</span></code> would mean that Polars falls back to the in-memory engine for that part.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">physical_steps</span><span class="p">(</span><span class="n">plan</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Returns the names of the steps the streaming engine would run for this plan."""</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">show_graph</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="s2">"streaming"</span><span class="p">,</span> <span class="n">plan_stage</span><span class="o">=</span><span class="s2">"physical"</span><span class="p">,</span> <span class="n">raw_output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">'\[label="([^"</span><span class="se">\\</span><span class="s1">]+)'</span><span class="p">,</span> <span class="n">graph</span><span class="p">)))</span>
+
+
+<span class="n">physical_steps</span><span class="p">(</span><span class="n">streaming_plan</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;group-by&#39;, &#39;multi-scan[csv]&#39;, &#39;select&#39;]
+</pre></div></div>
+</div>
+<p>Every step here runs in the streaming engine. When a step isn’t supported, Polars falls back quietly, without a warning. The query still gives the right answer, but it may use more memory than you expect.</p>
+</section>
+<section id="How-much-memory-it-saves">
+<h2>How much memory it saves<a class="headerlink" href="#How-much-memory-it-saves" title="Link to this heading">#</a></h2>
+<p>To see how much memory each engine takes, we look at the peak memory of the whole Python process (its “resident set size”). The peak never goes down, so we collect with the streaming engine first, then with the in-memory engine, and print the peak before and after each one. The <code class="docutils literal notranslate"><span class="pre">resource</span></code> module only exists on Linux and macOS.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">peak_mb</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Returns the peak memory of this process so far, in megabytes."""</span>
+    <span class="n">peak</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">getrusage</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">RUSAGE_SELF</span><span class="p">)</span><span class="o">.</span><span class="n">ru_maxrss</span>
+    <span class="c1"># Linux reports kilobytes, and macOS reports bytes.</span>
+    <span class="k">return</span> <span class="n">peak</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mi">20</span> <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">"darwin"</span> <span class="k">else</span> <span class="n">peak</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mi">10</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">timed_collect</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Collects the plan once with the given engine, prints time and peak memory, and shuffles the rows."""</span>
+    <span class="n">before</span> <span class="o">=</span> <span class="n">peak_mb</span><span class="p">()</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">released</span> <span class="o">=</span> <span class="n">plan</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+    <span class="n">seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">engine</span><span class="si">:</span><span class="s2">&gt;9</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">seconds</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> s, peak memory </span><span class="si">{</span><span class="n">before</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> MB -&gt; </span><span class="si">{</span><span class="n">peak_mb</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> MB"</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">released</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">fraction</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="n">streamed</span> <span class="o">=</span> <span class="n">timed_collect</span><span class="p">(</span><span class="n">streaming_plan</span><span class="p">,</span> <span class="s2">"streaming"</span><span class="p">)</span>
+<span class="n">in_memory</span> <span class="o">=</span> <span class="n">timed_collect</span><span class="p">(</span><span class="n">in_memory_plan</span><span class="p">,</span> <span class="s2">"in-memory"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+streaming: 0.11 s, peak memory 265 MB -&gt; 332 MB
+in-memory: 0.18 s, peak memory 332 MB -&gt; 537 MB
+</pre></div></div>
+</div>
+<p>The in-memory engine starts from the streaming peak, so the difference between its two numbers is the least it needed beyond what streaming used. When we ran this, streaming raised the peak by about 90 MB, and the in-memory engine raised it by over 200 MB more. Your numbers will be different, and streaming may also be faster.</p>
+<p>The gap grows with the size of the file: the in-memory engine needs room for every value it reads, while the streaming engine only needs room for a few batches at a time. In separate runs with 1, 3 and 10 million rows, each engine in a fresh process, the in-memory engine needed 2.5 to 3.2 times as much extra memory as the streaming engine.</p>
+<p>Here is the streamed release. The in-memory release looks the same, but with different noise.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">streamed</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">"state"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (4, 3)</small><table border="1" class="dataframe"><thead><tr><th>state</th><th>len</th><th>income</th></tr><tr><td>str</td><td>i64</td><td>f64</td></tr></thead><tbody><tr><td>&quot;CA&quot;</td><td>750213</td><td>99910.07136</td></tr><tr><td>&quot;NY&quot;</td><td>749571</td><td>99976.696539</td></tr><tr><td>&quot;TX&quot;</td><td>749287</td><td>100008.241433</td></tr><tr><td>&quot;WA&quot;</td><td>750946</td><td>100025.097331</td></tr></tbody></table></div></div>
+</div>
+</section>
+<section id="What-can't-stream">
+<h2>What can’t stream<a class="headerlink" href="#What-can't-stream" title="Link to this heading">#</a></h2>
+<p>In OpenDP 0.16, <code class="docutils literal notranslate"><span class="pre">.lazy()</span></code> fails on a quantile query, because OpenDP can’t hand a quantile’s plan over to Polars in Python yet. The release has already spent its budget by then, but the <code class="docutils literal notranslate"><span class="pre">OnceFrame</span></code> is not used up, so you can still collect it with the in-memory engine.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">quantile_query</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">"age"</span><span class="p">)</span><span class="o">.</span><span class="n">fill_null</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dp</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">candidates</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)))</span>
+<span class="p">)</span>
+<span class="n">released_quantile</span> <span class="o">=</span> <span class="n">quantile_query</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">released_quantile</span><span class="o">.</span><span class="n">lazy</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">dp</span><span class="o">.</span><span class="n">OpenDPException</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"lazy() failed:"</span><span class="p">,</span> <span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"error: "</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'"'</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">released_quantile</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lazy() failed: serialization not supported for this &#39;opaque&#39; function
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+  text-align: right;
+  white-space: pre-wrap;
+}
+</style>
+<small>shape: (1, 1)</small><table border="1" class="dataframe"><thead><tr><th>age</th></tr><tr><td>i64</td></tr></thead><tbody><tr><td>53</td></tr></tbody></table></div></div>
+</div>
+<p>Native support for the streaming engine in <code class="docutils literal notranslate"><span class="pre">OnceFrame.collect()</span></code> is tracked in <a class="reference external" href="https://github.com/opendp/opendp/issues/3138">opendp/opendp#3138</a>. Once that lands, you won’t need <code class="docutils literal notranslate"><span class="pre">.lazy()</span></code> or the <code class="docutils literal notranslate"><span class="pre">&quot;honest-but-curious&quot;</span></code> feature.</p>
+<p>Finally, we delete the test file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">temp_dir</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Takeaways">
+<h2>Takeaways<a class="headerlink" href="#Takeaways" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Stream when your data is close to the size of your memory, or larger.</p></li>
+<li><p>Give OpenDP a <code class="docutils literal notranslate"><span class="pre">LazyFrame</span></code> from <code class="docutils literal notranslate"><span class="pre">pl.scan_csv</span></code> or <code class="docutils literal notranslate"><span class="pre">pl.scan_parquet</span></code>, so the file isn’t loaded up front.</p></li>
+<li><p>To stream, use <code class="docutils literal notranslate"><span class="pre">release().lazy().collect(engine=&quot;streaming&quot;)</span></code>. Collect only once, drop the <code class="docutils literal notranslate"><span class="pre">OnceFrame</span></code>, and shuffle the output.</p></li>
+<li><p>Check the plan with <code class="docutils literal notranslate"><span class="pre">show_graph(engine=&quot;streaming&quot;,</span> <span class="pre">plan_stage=&quot;physical&quot;)</span></code> to see whether anything falls back to memory.</p></li>
+<li><p>Counts, sums, means and grouping stream well. Here the in-memory engine needed 2.5 to 3.2 times as much extra memory.</p></li>
+<li><p>Quantiles don’t stream in OpenDP 0.16, but you can still collect them in memory.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="accuracy-pitfalls.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Accuracy: Pitfalls and Edge Cases</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="signed-counts.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Signed Counts: Why Clipping at Zero Biases Totals</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Making-a-large-test-file">Making a large test file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Streaming-a-query">Streaming a query</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Checking-that-the-plan-streams">Checking that the plan streams</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#How-much-memory-it-saves">How much memory it saves</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#What-can't-stream">What can’t stream</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Takeaways">Takeaways</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, OpenDP Project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
