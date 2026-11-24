@@ -1,4 +1,4 @@
-# # Reconstruction Attack
+# # Reconstruction attack
 # An adversary can leverage a dataset reconstruction attack that takes advantage of query answers on a sequestered dataset to reconstruct the data of every individual in the dataset.
 #
 #

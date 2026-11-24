@@ -1,4 +1,4 @@
-# # Differencing Attack
+# # Differencing attack
 #
 # This section demonstrates some of the simplest possible attacks on an individual's private data and what differential privacy does to mitigate it.
 # We'll demonstrate the attack with public-use California income microdata.

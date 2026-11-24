@@ -1,4 +1,4 @@
-# # Quantiles with the Exponential Mechanism
+# # Quantiles with the exponential mechanism
 #
 # This section explains the algorithm used to release a differentially private quantile using the exponential mechanism in the OpenDP Library.
 #
