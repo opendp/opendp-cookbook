@@ -1,4 +1,4 @@
-# # Accuracy: Pitfalls and Edge Cases
+# # Accuracy: Pitfalls and edge cases
 #
 # This notebook describes OpenDP's accuracy calculations, and ways in which an analyst might be tripped up by them.
 #

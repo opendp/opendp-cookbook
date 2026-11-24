@@ -1,4 +1,4 @@
-# # Signed Counts: Why Clipping at Zero Biases Totals
+# # Signed counts: Why clipping at zero biases totals
 #
 # Before OpenDP 0.16, a noisy count from `dp.len()` or `.dp.count()` could never be negative:
 # if the noise pushed a count below zero, OpenDP returned zero.

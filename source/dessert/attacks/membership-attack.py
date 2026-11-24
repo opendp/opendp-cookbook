@@ -1,4 +1,4 @@
-# # Membership Attack
+# # Membership attack
 # An adversary can leverage a membership inference attack that takes advantage of query answers on a sequestered dataset to infer if a particular individual exists in the sequestered dataset.
 # There are situations in which knowing if an individual exists within a sequestered dataset poses risk to the individual.
 #

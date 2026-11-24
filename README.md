@@ -23,6 +23,7 @@ If a contribution looks good in other respects, the maintainers may apply ruff w
 - Don't use subprocess, or notebook magic commands, or read or write outside of a temp directory.
 - There should be a lot of explanation: Aim for 50/50 code/prose.
 - Additional dependencies are not forbidden, but they are discouraged. Additions (via uv) will be evaluated on a case-by-case basis.
+- Recipes should run quickly and should not be load tests.
 
 Finally, where should the input data come from?
 - May be obvious, but don't check-in private data, or even data that could be mistaken for private data!
